@@ -109,6 +109,10 @@ const phone = real(business.phone);
 	}
 
 	.footer__col a {
+		/* 16px of text is a 16px tap target; the padding takes it to 24px,
+		   which is the WCAG 2.2 minimum. */
+		display: inline-block;
+		padding-block: 0.25rem;
 		color: var(--glass-ink);
 	}
 
@@ -118,7 +122,9 @@ const phone = real(business.phone);
 
 	.footer__credit {
 		margin: 0;
-		color: var(--glass);
+		/* Not --glass: #afbdb8 on --paper measures 1.66:1. --glass is a fill
+		   colour, and the design language is explicit it is never for type. */
+		color: var(--glass-ink);
 	}
 
 	@media (min-width: 40rem) {
