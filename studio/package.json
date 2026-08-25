@@ -2,7 +2,7 @@
   "name": "momo-studio",
   "private": true,
   "version": "1.0.0",
-  "description": "Sanity Studio for Café Momo",
+  "description": "Sanity Studio for Caf\u00e9 Momo",
   "type": "module",
   "engines": {
     "node": ">=22.12.0"

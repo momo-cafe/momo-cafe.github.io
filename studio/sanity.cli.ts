@@ -7,7 +7,8 @@ export default defineCliConfig({
   },
   /**
    * The studio is deployed on its own, not with the website: run
-   * `npm run deploy` in this folder to publish it to <name>.sanity.studio.
+   * `npm run studio:deploy` from the repo root (or `npm run deploy` here) to
+   * publish it to <name>.sanity.studio.
    */
-  autoUpdates: true,
+  deployment: { autoUpdates: true },
 });
