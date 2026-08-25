@@ -1,0 +1,99 @@
+---
+/**
+ * Horizontal scroll-snap row on mobile, loose staggered grid on desktop.
+ * Not a carousel: no arrows, no dots, no autoplay.
+ *
+ * The photo files live in src/assets/gallery so Astro can generate AVIF and
+ * WebP for them; site.json still owns which photos appear and in what order,
+ * matched on the filename in its `src` field.
+ */
+import type { ImageMetadata } from 'astro';
+import Polaroid from './Polaroid.astro';
+import { t } from '../lib/t.js';
+
+interface Props {
+	items: any[];
+	locale: string;
+}
+
+const { items, locale } = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>(
+	'../assets/gallery/*.{jpg,jpeg,png,avif,webp}',
+	{ eager: true }
+);
+
+const byName = new Map(
+	Object.entries(files).map(([path, mod]) => [
+		path.split('/').pop()!.replace(/\.[^.]+$/, ''),
+		mod.default,
+	])
+);
+
+const resolved = items
+	.map((item) => {
+		const key = String(item.src).split('/').pop()!.replace(/\.[^.]+$/, '');
+		const image = byName.get(key);
+		if (!image) {
+			console.warn(`[gallery] no image file in src/assets/gallery for "${item.src}", skipping`);
+		}
+		return image ? { ...item, image } : null;
+	})
+	.filter(Boolean);
+---
+
+<div class="gallery">
+	{
+		resolved.map((item: any, index: number) => (
+			<div class="gallery__cell u-reveal" style={`--reveal-i:${index}`}>
+				<Polaroid
+					image={item.image}
+					alt={t(item.alt, locale)}
+					caption={t(item.caption, locale)}
+					index={index}
+				/>
+			</div>
+		))
+	}
+</div>
+
+<style>
+	.gallery {
+		display: flex;
+		gap: clamp(1.25rem, 4vw, 2.5rem);
+		/* Bleed to the screen edges on mobile so the row reads as scrollable. */
+		margin-inline: calc(var(--gutter) * -1);
+		padding: 0.75rem var(--gutter) 1.5rem;
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.gallery::-webkit-scrollbar {
+		display: none;
+	}
+
+	.gallery__cell {
+		scroll-snap-align: center;
+	}
+
+	@media (min-width: 48rem) {
+		.gallery {
+			margin-inline: 0;
+			padding-inline: 0;
+			overflow-x: visible;
+			flex-wrap: wrap;
+			align-items: flex-start;
+		}
+
+		/* Loose stagger, static offsets: nothing here animates on scroll. */
+		.gallery__cell:nth-child(3n + 2) {
+			margin-top: 2.5rem;
+		}
+
+		.gallery__cell:nth-child(3n) {
+			margin-top: 1.25rem;
+		}
+	}
+</style>

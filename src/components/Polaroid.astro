@@ -1,0 +1,85 @@
+---
+/**
+ * Section 4: the frame is honest about being a physical object. Real polaroid
+ * proportions, 2px radius, hard offset shadow matching the window light, and a
+ * rotation seeded from the array index so it is identical on every build and
+ * never jumps.
+ */
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+	image: ImageMetadata;
+	alt: string;
+	caption?: string;
+	index?: number;
+	width?: number;
+	loading?: 'lazy' | 'eager';
+}
+
+const { image, alt, caption, index = 0, width = 280, loading = 'lazy' } = Astro.props;
+
+// Image aspect 1:1.19, with the wider bottom border coming from padding.
+const height = Math.round(width * 1.19);
+const retina = { width: width * 2, height: height * 2 };
+
+const avif = await getImage({ src: image, ...retina, format: 'avif' });
+const webp = await getImage({ src: image, ...retina, format: 'webp' });
+const fallback = await getImage({ src: image, ...retina, format: 'jpeg' });
+
+// Stable pseudo-random tilt inside the -2.5deg..2.5deg the design language allows.
+const TILTS = [-2.1, 1.6, -1.2, 2.4, -2.5, 0.9, 1.1, -1.8];
+const tilt = TILTS[index % TILTS.length];
+---
+
+<figure class="polaroid" style={`--tilt:${tilt}deg; --w:${width}px`}>
+	<picture>
+		<source srcset={avif.src} type="image/avif" />
+		<source srcset={webp.src} type="image/webp" />
+		<img src={fallback.src} alt={alt} width={width} height={height} loading={loading} decoding="async" />
+	</picture>
+	{caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+	.polaroid {
+		width: var(--w);
+		flex: none;
+		padding: 12px 12px 44px;
+		background: var(--paper-lift);
+		border-radius: 2px;
+		/* Hard, offset, no blur: the shadow the windows throw at two o'clock. */
+		box-shadow: 6px 10px 0 rgba(15, 15, 14, 0.07);
+		transform: rotate(var(--tilt));
+	}
+
+	.polaroid img {
+		width: 100%;
+		height: auto;
+		border-radius: 1px;
+		background: var(--glass);
+	}
+
+	.polaroid figcaption {
+		margin-top: 0.7rem;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		color: var(--glass-ink);
+	}
+
+	/* Section 6, moment three: it straightens and lifts. That is the whole
+	   interaction, and it does not exist under reduced motion. */
+	@media (prefers-reduced-motion: no-preference) {
+		.polaroid {
+			transition:
+				transform 320ms var(--spring),
+				box-shadow 320ms var(--ease);
+		}
+
+		.polaroid:hover,
+		.polaroid:focus-within {
+			transform: rotate(0deg) translateY(-3px);
+			box-shadow: 6px 13px 0 rgba(15, 15, 14, 0.09);
+		}
+	}
+</style>
