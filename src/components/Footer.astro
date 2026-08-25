@@ -48,7 +48,8 @@ const phone = real(business.phone);
 	</div>
 	<div class="footer__rule" aria-hidden="true"></div>
 
-	<div class="footer__body u-page u-utility">
+	<div class="footer__shell u-shell">
+		<div class="footer__body u-centre u-utility">
 		<div class="footer__col">
 			<p>{business.legalName}</p>
 			<p>{business.legalForm}</p>
@@ -70,7 +71,8 @@ const phone = real(business.phone);
 			</p>
 		</div>
 
-		<p class="footer__credit">{t(footer.credit, locale)}</p>
+			<p class="footer__credit">{t(footer.credit, locale)}</p>
+		</div>
 	</div>
 </footer>
 
@@ -113,6 +115,11 @@ const phone = real(business.phone);
 		/* Matched to the weight of her drawn line, which scales with her. */
 		height: max(2px, calc(var(--footer-mascot-w) * 0.006));
 		background: var(--ink);
+	}
+
+	/* Aligned to the same centre track the rest of the page sits in. */
+	.footer__shell {
+		padding-inline: var(--gutter);
 	}
 
 	.footer__body {

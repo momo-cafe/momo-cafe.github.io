@@ -48,19 +48,17 @@ const codes = Object.entries(menu.allergenCodes ?? {}).filter(
 </section>
 
 <style>
+	/* A ruled band, not a card: nothing on this page has a fill. */
 	.allergens {
-		padding: clamp(1.25rem, 3vw, 1.75rem);
-		border-radius: 2px;
-		background: var(--paper-lift);
-		/* The top edge of a card is where metal is allowed. */
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-		border-top: 1px solid transparent;
-		border-image: var(--metal) 1;
+		margin-top: calc(60 * var(--u));
+		border-top: var(--hair) solid var(--ink);
+		padding-top: var(--band);
 	}
 
 	.allergens__heading {
-		font-size: 1.125rem;
-		margin-bottom: 0.85rem;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		margin-bottom: calc(16 * var(--u));
 	}
 
 	.allergens__list {

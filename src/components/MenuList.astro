@@ -2,14 +2,17 @@
 /**
  * The menu as real HTML text. No PDF, no photograph of a menu card.
  *
- * The € appears once per section heading, never on a row: the price column is
- * tabular so it lines up, and a repeated currency symbol makes it wobble.
+ * Each section is a 5/7 split: the narrow column holds the section name at
+ * display size, the wide one holds the price list. Rows are separated by
+ * hairlines rather than sitting in a card, and the € appears once per section
+ * heading, never on a row — the price column is tabular so it lines up, and a
+ * repeated currency symbol makes it wobble.
  *
  * Three shapes come out of the printed cards:
  *   - items:      a name, an optional note, an optional add-on, a price
  *   - groupPrice: one price against the whole section (sweets), with the
  *                 choices listed beneath and no per-line price
- *   - footnote:   real content that belongs to a section, not fine print
+ *   - footnote:   real content belonging to a section, not fine print
  * Prices stay exactly as printed ("2,9", "3,9 / 4,5"): parsing them into
  * numbers would render 2,90 and lose the second size.
  */
@@ -28,20 +31,23 @@ const codes = menu.allergenCodes ?? {};
 ---
 
 <div class="menu">
-	<p class="menu__order u-utility">{t(menu.orderNotice, locale)}</p>
-
 	{
 		menu.sections.map((section: any) => (
-			<section class="menu__section" id={section.id} aria-labelledby={`heading-${section.id}`}>
-				<div class="menu__head">
-					<h3 id={`heading-${section.id}`}>{t(section.heading, locale)}</h3>
-					<span class="menu__euro u-num">
-						{section.groupPrice ? `€ ${section.groupPrice}` : '€'}
-					</span>
+			<section class="course" id={section.id} aria-labelledby={`heading-${section.id}`}>
+				<div class="course__head">
+					<h3 id={`heading-${section.id}`} class="course__name u-fun">
+						{t(section.heading, locale)}
+					</h3>
+					{section.footnote && <p class="course__footnote">{t(section.footnote, locale)}</p>}
 				</div>
-				<hr class="u-hairline" />
 
-				<ul class="menu__items">
+				<div class="course__list">
+					{/* The currency sits once, at the head of the price column, so no
+					    row has to repeat it. For a group-priced section it carries
+					    that section's single price. */}
+					<p class="course__euro u-num">{section.groupPrice ? `€ ${section.groupPrice}` : '€'}</p>
+
+					<ul class="course__rows">
 					{(section.items ?? []).map((item: any, index: number) => (
 						<li class="row u-reveal" style={`--reveal-i:${index}`}>
 							<p class="row__name">
@@ -69,50 +75,46 @@ const codes = menu.allergenCodes ?? {};
 
 					{/* One price against the whole group: the choices carry no price. */}
 					{(section.options ?? []).map((option: any, index: number) => (
-						<li class="row row--option u-reveal" style={`--reveal-i:${index}`}>
+						<li class="row u-reveal" style={`--reveal-i:${index}`}>
 							<p class="row__name">{t(option, locale)}</p>
 						</li>
 					))}
-				</ul>
-
-				{section.footnote && <p class="menu__footnote">{t(section.footnote, locale)}</p>}
+					</ul>
+				</div>
 			</section>
 		))
 	}
+
+	<p class="menu__order u-utility">{t(menu.orderNotice, locale)}</p>
 </div>
 
 <style>
 	.menu {
 		display: grid;
-		gap: clamp(2rem, 4vw, 2.75rem);
 	}
 
-	.menu__order {
-		margin: 0;
+	.course {
+		display: grid;
+		grid-template-columns: 5fr 7fr;
+		column-gap: calc(40 * var(--u));
+		padding-top: calc(60 * var(--u));
 	}
 
-	.menu__head {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 1rem;
-		margin-bottom: 0.5rem;
+	.course__name {
+		font-size: var(--h2);
 	}
 
-	.menu__euro {
+	.course__euro {
+		margin: 0 0 calc(8 * var(--u));
+		text-align: right;
 		font-size: var(--utility);
 		color: var(--glass-ink);
 		white-space: nowrap;
 	}
 
-	.menu__items {
-		display: grid;
-		gap: 0.55rem;
-		margin-top: 0.9rem;
-	}
-
-	.menu__footnote {
-		margin-top: 1rem;
+	.course__footnote {
+		margin-top: calc(20 * var(--u));
+		max-width: 28ch;
 		font-size: var(--utility);
 		line-height: 1.5;
 		letter-spacing: 0.04em;
@@ -121,11 +123,23 @@ const codes = menu.allergenCodes ?? {};
 		white-space: pre-line;
 	}
 
+	.course__rows {
+		display: grid;
+		align-content: start;
+	}
+
+	/* Every division is a hairline; nothing here is a box. */
 	.row {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
-		column-gap: 1.25rem;
+		column-gap: calc(30 * var(--u));
 		align-items: baseline;
+		border-top: var(--hair) solid var(--glass);
+		padding-block: calc(16 * var(--u));
+	}
+
+	.row:last-child {
+		border-bottom: var(--hair) solid var(--glass);
 	}
 
 	.row__name {
@@ -135,13 +149,14 @@ const codes = menu.allergenCodes ?? {};
 	.row__price {
 		grid-column: 2;
 		text-align: right;
-		font-size: 0.9375rem;
+		font-size: var(--utility);
 		color: var(--glass-ink);
 	}
 
 	.row__note {
 		grid-column: 1 / -1;
 		max-width: var(--measure);
+		margin-top: calc(4 * var(--u));
 		font-size: var(--utility);
 		line-height: 1.45;
 		letter-spacing: 0.04em;
@@ -152,7 +167,7 @@ const codes = menu.allergenCodes ?? {};
 		color: var(--ink);
 	}
 
-	/* --zon, second and last appearance on a screen: a highlight dot. */
+	/* --zon, at most twice on a screen: here it is a highlight dot. */
 	.row__dot {
 		display: inline-block;
 		width: 0.4rem;
@@ -178,5 +193,22 @@ const codes = menu.allergenCodes ?? {};
 	.row__allergens a:hover {
 		color: var(--ink);
 		text-decoration: underline;
+	}
+
+	.menu__order {
+		margin: 0;
+		padding-top: calc(40 * var(--u));
+	}
+
+	@media (max-width: 63.9375rem) {
+		.course {
+			grid-template-columns: 1fr;
+			row-gap: calc(24 * var(--u));
+			padding-top: calc(48 * var(--u));
+		}
+
+		.course__footnote {
+			max-width: none;
+		}
 	}
 </style>
