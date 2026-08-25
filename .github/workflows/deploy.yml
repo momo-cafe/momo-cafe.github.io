@@ -3,6 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # Publishing in the studio changes nothing on its own: the site is static and
+  # content is read at build time. A Sanity webhook POSTs this event so an edit
+  # reaches momo-cafe.nl without anyone touching git. GitHub only honours
+  # repository_dispatch for workflows on the default branch.
+  repository_dispatch:
+    types: [sanity-publish]
   workflow_dispatch:
 
 permissions:
