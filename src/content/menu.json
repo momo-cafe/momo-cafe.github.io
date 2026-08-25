@@ -1,0 +1,92 @@
+{
+  "_note": "ALL PRICES AND ITEMS BELOW ARE PLACEHOLDERS read partially from a photo of the menu card. Confirm every line with the owner before launch. Prices are strings so 3,60 renders correctly in Dutch without float rounding.",
+
+  "allergenCodes": {
+    "_note": "The 14 EU declarable allergens. Only list codes you actually use.",
+    "G": { "nl": "gluten", "en": "gluten" },
+    "L": { "nl": "lactose / melk", "en": "lactose / milk" },
+    "N": { "nl": "noten", "en": "nuts" },
+    "P": { "nl": "pinda", "en": "peanut" },
+    "E": { "nl": "ei", "en": "egg" },
+    "S": { "nl": "soja", "en": "soy" },
+    "SE": { "nl": "sesam", "en": "sesame" }
+  },
+
+  "allergenNotice": {
+    "nl": "Vraag ons gerust naar allergenen. We hebben de volledige informatie achter de bar en helpen je graag.",
+    "en": "Ask us about allergens any time. We keep the full information behind the bar and are happy to help."
+  },
+
+  "orderNotice": {
+    "nl": "bestellen aan de bar",
+    "en": "order at the bar"
+  },
+
+  "sections": [
+    {
+      "id": "koffie",
+      "heading": { "nl": "koffie", "en": "coffee" },
+      "items": [
+        { "name": { "nl": "espresso", "en": "espresso" }, "price": "2,80", "allergens": [] },
+        { "name": { "nl": "americano", "en": "americano" }, "price": "3,20", "allergens": [] },
+        { "name": { "nl": "cortado", "en": "cortado" }, "price": "3,30", "allergens": ["L"] },
+        { "name": { "nl": "flat white", "en": "flat white" }, "price": "3,90", "allergens": ["L"] },
+        { "name": { "nl": "cappuccino", "en": "cappuccino" }, "price": "3,60", "allergens": ["L"] },
+        { "name": { "nl": "latte", "en": "latte" }, "price": "3,90", "allergens": ["L"] },
+        { "name": { "nl": "iced latte", "en": "iced latte" }, "price": "4,20", "allergens": ["L"] }
+      ]
+    },
+    {
+      "id": "niet-koffie",
+      "heading": { "nl": "niet koffie", "en": "not coffee" },
+      "items": [
+        { "name": { "nl": "matcha latte", "en": "matcha latte" }, "price": "4,50", "allergens": ["L"] },
+        { "name": { "nl": "iced matcha", "en": "iced matcha" }, "price": "4,70", "allergens": ["L"] },
+        {
+          "name": { "nl": "vanille hojicha latte", "en": "vanilla hojicha latte" },
+          "price": "4,70",
+          "allergens": ["L"]
+        },
+        { "name": { "nl": "warme chocolademelk", "en": "hot chocolate" }, "price": "3,80", "allergens": ["L", "S"] },
+        { "name": { "nl": "verse muntthee", "en": "fresh mint tea" }, "price": "3,20", "allergens": [] },
+        {
+          "name": { "nl": "huisgemaakte limonade", "en": "homemade lemonade" },
+          "note": { "nl": "citroen of passievrucht", "en": "lemon or passionfruit" },
+          "price": "3,50",
+          "allergens": []
+        }
+      ]
+    },
+    {
+      "id": "lekkers",
+      "heading": { "nl": "lekkers", "en": "something good" },
+      "items": [
+        {
+          "name": { "nl": "pistache cookie", "en": "pistachio cookie" },
+          "price": "3,50",
+          "allergens": ["G", "L", "N", "E"],
+          "highlight": true
+        },
+        {
+          "name": { "nl": "carrot cake", "en": "carrot cake" },
+          "note": { "nl": "met roomkaas", "en": "with cream cheese" },
+          "price": "4,50",
+          "allergens": ["G", "L", "E", "N"]
+        },
+        { "name": { "nl": "banana bread", "en": "banana bread" }, "price": "4,00", "allergens": ["G", "L", "E"] }
+      ]
+    },
+    {
+      "id": "ontbijt-lunch",
+      "heading": { "nl": "ontbijt & lunch", "en": "breakfast & lunch" },
+      "items": [
+        {
+          "name": { "nl": "PLACEHOLDER", "en": "PLACEHOLDER" },
+          "note": { "nl": "vraag de eigenaar om de kaart", "en": "get the card from the owner" },
+          "price": "0,00",
+          "allergens": []
+        }
+      ]
+    }
+  ]
+}

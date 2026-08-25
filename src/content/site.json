@@ -1,0 +1,166 @@
+{
+  "_note": "Every translatable value is an object keyed by locale: { nl, en }. This mirrors Sanity's localeString pattern, so migration is a schema mapping and not a rewrite. Values marked PLACEHOLDER must be confirmed with the owner before launch.",
+
+  "business": {
+    "name": "Café Momo",
+    "legalName": "PLACEHOLDER: name as registered at KVK",
+    "legalForm": "PLACEHOLDER: eenmanszaak | VOF | BV",
+    "kvk": "PLACEHOLDER: 8-digit KVK number",
+    "btwId": "PLACEHOLDER: NL000000000B00 (btw-id, never the OB number)",
+    "street": "Oude Kijk in 't Jatstraat 69",
+    "postcode": "9712 EE",
+    "city": "Groningen",
+    "country": "NL",
+    "email": "PLACEHOLDER",
+    "phone": "PLACEHOLDER",
+    "instagram": "https://www.instagram.com/cafe_momo_/",
+    "coordinates": { "lat": 53.2205, "lng": 6.5622 },
+    "mapsUrl": "PLACEHOLDER: paste the share link from their Google Business Profile"
+  },
+
+  "hours": {
+    "_note": "24h, Europe/Amsterdam. Empty array means closed all day. The open/closed status in the hero is computed from this.",
+    "regular": {
+      "mon": [["08:30", "17:00"]],
+      "tue": [["08:30", "17:00"]],
+      "wed": [["08:30", "17:00"]],
+      "thu": [["08:30", "17:00"]],
+      "fri": [["08:30", "17:00"]],
+      "sat": [["09:00", "17:00"]],
+      "sun": [["09:00", "17:00"]]
+    },
+    "exceptions": [
+      {
+        "date": "2026-12-25",
+        "hours": [],
+        "label": { "nl": "Eerste kerstdag", "en": "Christmas Day" }
+      }
+    ]
+  },
+
+  "announcement": {
+    "_note": "The single field the owner will actually use. Leave text empty to hide the banner entirely.",
+    "active": false,
+    "text": {
+      "nl": "",
+      "en": ""
+    }
+  },
+
+  "hero": {
+    "headline": {
+      "nl": "koffie, matcha en iets lekkers",
+      "en": "coffee, matcha and something good"
+    },
+    "sub": {
+      "nl": "aan de Oude Kijk in 't Jatstraat. loop binnen.",
+      "en": "on the Oude Kijk in 't Jatstraat. just walk in."
+    }
+  },
+
+  "status": {
+    "openUntil": { "nl": "nu open tot {time}", "en": "open now until {time}" },
+    "closed": { "nl": "we zijn nu gesloten", "en": "we're closed right now" },
+    "opensAt": { "nl": "morgen open vanaf {time}", "en": "open tomorrow from {time}" },
+    "opensToday": { "nl": "vandaag open vanaf {time}", "en": "open today from {time}" }
+  },
+
+  "about": {
+    "heading": { "nl": "over momo", "en": "about momo" },
+    "body": {
+      "nl": "PLACEHOLDER: twee of drie zinnen van de eigenaar zelf. Waarom deze straat, wat er in de kast staat, wie er achter de bar staat. Geen marketingtaal.",
+      "en": "PLACEHOLDER: two or three sentences from the owner. Why this street, what's on the shelf, who is behind the bar. No marketing language."
+    }
+  },
+
+  "practical": {
+    "_note": "Small true facts. Delete any that do not apply rather than fudging them.",
+    "items": [
+      { "nl": "pinnen en contant", "en": "card and cash" },
+      { "nl": "bank buiten in de zon", "en": "bench outside in the sun" },
+      { "nl": "havermelk zonder extra kosten", "en": "oat milk at no extra charge" },
+      { "nl": "geen reserveringen, gewoon binnenlopen", "en": "no reservations, just walk in" }
+    ]
+  },
+
+  "gallery": [
+    {
+      "src": "/img/bar.jpg",
+      "alt": { "nl": "De glasblokken bar met het espressoapparaat", "en": "The glass block bar with the espresso machine" },
+      "caption": { "nl": "de bar", "en": "the bar" }
+    },
+    {
+      "src": "/img/cake.jpg",
+      "alt": { "nl": "Drie bordjes cake met slagroom", "en": "Three plates of cake with cream" },
+      "caption": { "nl": "cake, drie keer", "en": "cake, three ways" }
+    },
+    {
+      "src": "/img/raam.jpg",
+      "alt": { "nl": "Gasten in de zon voor het raam", "en": "Guests in the sun by the window" },
+      "caption": { "nl": "middagzon", "en": "afternoon sun" }
+    }
+  ],
+
+  "footer": {
+    "credit": { "nl": "gemaakt in Groningen", "en": "made in Groningen" }
+  },
+
+  "ui": {
+    "_note": "Interface strings. Components hardcode no copy at all (aria-labels aside), so anything a visitor can read lives in this file.",
+    "skip": { "nl": "naar de inhoud", "en": "skip to content" },
+    "languageLabel": { "nl": "taal kiezen", "en": "choose language" },
+    "routeCta": { "nl": "route", "en": "route" },
+    "menuCta": { "nl": "menu", "en": "menu" },
+    "hoursHeading": { "nl": "openingstijden", "en": "opening hours" },
+    "closedDay": { "nl": "gesloten", "en": "closed" },
+    "today": { "nl": "vandaag", "en": "today" },
+    "whereHeading": { "nl": "waar", "en": "where" },
+    "menuHeading": { "nl": "de kaart", "en": "the menu" },
+    "allergensHeading": { "nl": "allergenen", "en": "allergens" },
+    "allergensCta": { "nl": "allergenen", "en": "allergens" },
+    "allergenColumn": { "nl": "allergenen bij dit gerecht", "en": "allergens in this item" },
+    "galleryHeading": { "nl": "binnen", "en": "inside" },
+    "practicalHeading": { "nl": "praktisch", "en": "practical" },
+    "googleMaps": { "nl": "Google Maps", "en": "Google Maps" },
+    "appleMaps": { "nl": "Apple Maps", "en": "Apple Maps" },
+    "phoneLabel": { "nl": "bellen", "en": "call" },
+    "emailLabel": { "nl": "mailen", "en": "email" },
+    "instagram": { "nl": "Instagram", "en": "Instagram" },
+    "privacyLink": { "nl": "privacy", "en": "privacy" },
+    "kvkLabel": { "nl": "KVK", "en": "KVK" },
+    "btwLabel": { "nl": "btw-id", "en": "VAT ID" },
+    "backHome": { "nl": "terug naar de site", "en": "back to the site" }
+  },
+
+  "privacy": {
+    "_note": "There is no analytics, no cookie banner and no form on this site, so this statement is short on purpose. If analytics is ever added it must be cookieless, and the banner becomes mandatory.",
+    "heading": { "nl": "privacy", "en": "privacy" },
+    "updated": "2026-08-25",
+    "updatedLabel": { "nl": "laatst bijgewerkt", "en": "last updated" },
+    "body": {
+      "nl": [
+        "Deze website zet geen cookies, gebruikt geen analytics en volgt je niet. Er zijn geen formulieren, dus we vragen je hier ook niets.",
+        "De site is statisch en wordt gehost bij GitHub Pages. Die hostingpartij legt technische gegevens vast die nodig zijn om een pagina te versturen, waaronder je IP-adres. Wij kunnen die logs niet inzien.",
+        "Als je ons mailt, bewaren we die mail zolang dat nodig is om je vraag te beantwoorden. We delen hem met niemand anders.",
+        "Je hebt het recht om te vragen welke gegevens we van je hebben, en om die te laten verwijderen. Mail ons en we regelen het."
+      ],
+      "en": [
+        "This website sets no cookies, uses no analytics and does not track you. There are no forms, so we ask you for nothing here.",
+        "The site is static and hosted on GitHub Pages. That host records the technical data needed to serve a page, including your IP address. We have no access to those logs.",
+        "If you email us, we keep that email for as long as it takes to answer your question. We share it with no one.",
+        "You have the right to ask what data we hold about you and to have it deleted. Email us and we will take care of it."
+      ]
+    }
+  },
+
+  "meta": {
+    "title": {
+      "nl": "Café Momo, Groningen. Koffie, matcha, ontbijt en lunch.",
+      "en": "Café Momo, Groningen. Coffee, matcha, breakfast and lunch."
+    },
+    "description": {
+      "nl": "Specialty coffee, matcha en huisgemaakte cake aan de Oude Kijk in 't Jatstraat 69 in Groningen. Dagelijks open.",
+      "en": "Specialty coffee, matcha and homemade cake at Oude Kijk in 't Jatstraat 69, Groningen. Open daily."
+    }
+  }
+}
