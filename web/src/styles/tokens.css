@@ -271,9 +271,16 @@ a {
 	}
 }
 
-/* Divisions are hairlines, never boxes, cards or fills. */
+/* Divisions are hairlines, never boxes, cards or fills - and used sparingly.
+   Stacked bands each drawing their own pair of rules read as a ladder, so only
+   the facts row, the highest-value block on the page, is bracketed. */
 .u-band {
 	border-block: var(--hair) solid var(--ink);
+	padding-block: var(--band);
+}
+
+/* The same rhythm without the rules: here the label is the division. */
+.u-band-quiet {
 	padding-block: var(--band);
 }
 

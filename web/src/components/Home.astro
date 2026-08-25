@@ -115,11 +115,11 @@ const jumps = [
 			</ul>
 		</nav>
 
-		<p class="label u-band u-label" id="kaart">{t(ui.menuHeading, locale)}</p>
+		<p class="label u-band-quiet u-label" id="kaart">{t(ui.menuHeading, locale)}</p>
 		<MenuList menu={menu} ui={ui} locale={locale} />
 		<Allergens menu={menu} ui={ui} locale={locale} />
 
-		<p class="label u-band u-label" id="binnen">{t(ui.galleryHeading, locale)}</p>
+		<p class="label u-band-quiet u-label" id="binnen">{t(ui.galleryHeading, locale)}</p>
 		<Gallery items={gallery} locale={locale} label={t(ui.galleryHeading, locale)} />
 	</div>
 </div>
@@ -210,7 +210,6 @@ const jumps = [
 	/* --- inline nav ---------------------------------------------------- */
 
 	.jump {
-		border-bottom: var(--hair) solid var(--ink);
 		padding-block: var(--band);
 	}
 
