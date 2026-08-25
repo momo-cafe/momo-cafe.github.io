@@ -34,7 +34,8 @@ src/
   content/menu.json         the menu, transcribed from the printed cards
   lib/t.js                  t(field, locale) — the only place a locale key is read
   lib/hours.js              open/closed + day grouping, Europe/Amsterdam
-  lib/content.js            content loaders, placeholder detection, map links
+  lib/content.js            content loader (Sanity, JSON fallback), placeholders, map links
+  lib/sanity.js             the build-time fetch, and the normalisation back to those shapes
   lib/mascot.js             measured geometry of the mascot artwork
   styles/tokens.css         the whole design system, as custom properties
   components/               one component per element, all props-in
@@ -44,6 +45,8 @@ src/
   pages/privacy.astro       + en/privacy.astro
 public/fonts/               self-hosted General Sans and Darumadrop One
 public/CNAME                the custom domain, required in the build artifact
+scripts/seed-sanity.mjs     one-time push of src/content/*.json into the dataset
+studio/                     the Sanity Studio, its own package, installed separately
 ```
 
 ### Content
@@ -55,7 +58,28 @@ translatable value is an object shaped `{ nl, en }`, which mirrors Sanity's
 a rewrite.
 
 Read those values through `t(field, locale)` from `src/lib/t.js`. Nothing else
-may index a locale key directly — that function is the seam.
+may index a locale key directly - that function is the seam.
+
+### Sanity
+
+The same content also lives in Sanity (project `drw50awd`, dataset
+`production`), edited in the studio under `studio/`. `src/lib/content.js` fetches
+it once at build time and `src/lib/sanity.js` normalises the two singleton
+documents back into exactly the shapes `src/content/*.json` have, which is why
+no component knows a CMS is involved. If Sanity is unreachable, empty, or
+`MOMO_CONTENT=local` is set, the build uses the JSON instead and logs which
+source it used. The JSON is therefore both the fallback and the seed.
+
+```sh
+cd studio && npm install && npx sanity login && npm run dev   # studio on :3333
+npm run deploy                                               # to <name>.sanity.studio
+
+node scripts/seed-sanity.mjs --dry-run                        # what would be written
+SANITY_WRITE_TOKEN=sk... node scripts/seed-sanity.mjs         # one-time bootstrap
+```
+
+`studio/` is deliberately not part of the root package.json: the website builds
+without ever installing the studio. See `.env.example` for the tokens.
 
 ### Internationalisation
 
