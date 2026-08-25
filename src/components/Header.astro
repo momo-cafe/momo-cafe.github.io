@@ -1,0 +1,126 @@
+---
+/**
+ * Sticky header. Blurs the glass grid behind it, per the wireframe in section 7.
+ * The language toggle reads `nl | en`, sits top right, and points at the same
+ * page in the other locale.
+ */
+import Wordmark from './Wordmark.astro';
+import { t, LOCALES, localePath } from '../lib/t.js';
+
+interface Props {
+	locale: string;
+	ui: Record<string, any>;
+	/** '' for the home page, or a slug like 'privacy'. */
+	page?: string;
+	/** Inner pages wrap the wordmark in a link home. */
+	linkHome?: boolean;
+}
+
+const { locale, ui, page = '', linkHome = false } = Astro.props;
+---
+
+<header class="header">
+	<div class="header__inner u-page">
+		<Wordmark width="104px" href={linkHome ? localePath(locale) : undefined} />
+
+		<nav class="lang" aria-label={t(ui.languageLabel, locale)}>
+			<span class="lang__ring">
+				<span class="lang__inner">
+					{
+						LOCALES.map((code, index) => (
+							<Fragment>
+								{index > 0 && <span class="lang__sep" aria-hidden="true">|</span>}
+								<a
+									class="lang__link"
+									href={localePath(code, page)}
+									hreflang={code}
+									lang={code}
+									data-lang-link
+									aria-current={code === locale ? 'true' : undefined}
+								>
+									{code}
+								</a>
+							</Fragment>
+						))
+					}
+				</span>
+			</span>
+		</nav>
+	</div>
+</header>
+
+<style>
+	.header {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		background: rgba(239, 237, 232, 0.74);
+		-webkit-backdrop-filter: blur(14px) saturate(140%);
+		backdrop-filter: blur(14px) saturate(140%);
+	}
+
+	.header__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding-block: 0.75rem;
+	}
+
+	/* Metal is a gradient, never a flat fill: it rings the toggle. */
+	.lang__ring {
+		display: inline-block;
+		padding: 1px;
+		border-radius: 999px;
+		background-image: var(--metal);
+	}
+
+	.lang__inner {
+		display: flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.28rem 0.7rem;
+		border-radius: 999px;
+		background: var(--paper);
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+	}
+
+	.lang__link {
+		color: var(--glass-ink);
+		text-decoration: none;
+	}
+
+	.lang__link[aria-current='true'] {
+		color: var(--ink);
+	}
+
+	.lang__sep {
+		color: var(--glass);
+	}
+
+	/* Section 6, moment one: the wordmark scales from 0.97 to 1 as the glass
+	   grid pulls into focus. Runs once, on load. */
+	@media (prefers-reduced-motion: no-preference) {
+		.header__inner :global(.wordmark) {
+			animation: momo-wordmark 900ms var(--ease) both;
+		}
+
+		@keyframes momo-wordmark {
+			from {
+				transform: scale(0.97);
+			}
+			to {
+				transform: none;
+			}
+		}
+
+		.lang__ring {
+			transition: background-image 240ms var(--ease);
+		}
+
+		.lang__ring:hover {
+			background-image: var(--metal-hover);
+		}
+	}
+</style>

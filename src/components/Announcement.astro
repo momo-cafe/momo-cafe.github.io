@@ -1,0 +1,37 @@
+---
+/**
+ * How the owner closes the shop from her phone: flip `announcement.active` and
+ * write one line. Renders nothing at all when inactive or empty.
+ */
+import { t } from '../lib/t.js';
+
+interface Props {
+	announcement: { active?: boolean; text?: Record<string, string> };
+	locale: string;
+}
+
+const { announcement, locale } = Astro.props;
+const text = t(announcement?.text, locale).trim();
+const show = Boolean(announcement?.active) && text.length > 0;
+---
+
+{
+	show && (
+		<aside class="announcement" role="status">
+			<p class="u-page">{text}</p>
+		</aside>
+	)
+}
+
+<style>
+	.announcement {
+		background: var(--ply-deep);
+		color: var(--paper);
+	}
+
+	.announcement p {
+		padding-block: 0.6rem;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+	}
+</style>
