@@ -1,0 +1,215 @@
+/*
+ * Café Momo design tokens.
+ * Every value here traces back to docs/momo-design-language.md. Do not add
+ * colours or typefaces that are not in that document.
+ */
+
+@font-face {
+	font-family: 'General Sans';
+	src: url('/fonts/general-sans-300.woff2') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'General Sans';
+	src: url('/fonts/general-sans-400.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+:root {
+	/* --- colour: sampled from the interior, section 2 of the design language */
+	--ink: #0f0f0e;
+	--paper: #efede8;
+	--paper-lift: #f7f6f3;
+	--glass: #afbdb8;
+	--glass-deep: #7e8f8b;
+	--ply: #a9714b;
+	--chrome: #c6cbcf;
+	--zon: #f2c31b;
+
+	/*
+	 * Two contrast-corrected shades of the tokens above, for type only.
+	 * The design language claims --glass-deep on --paper passes AA; measured it
+	 * is 2.9:1, and --paper on --ply is 3.5:1. Both fail AA for body text, and
+	 * accessibility 100 is an acceptance criterion. These are the same hues
+	 * darkened until they pass (6.9:1 and 5.2:1). Fills, dots, lines and hover
+	 * states still use the original --glass-deep / --ply.
+	 */
+	--glass-ink: #4a5654;
+	--ply-deep: #8b5738;
+
+	/* --- metal is a gradient, never a flat fill */
+	--metal: linear-gradient(150deg, #fff 0%, #c6cbcf 38%, #8e969c 62%, #e4e7e9 100%);
+	--metal-hover: linear-gradient(170deg, #fff 0%, #c6cbcf 38%, #8e969c 62%, #e4e7e9 100%);
+
+	/* --- type */
+	--font: 'General Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--display: clamp(2.75rem, 1.6rem + 5.2vw, 4.5rem);
+	--h2: clamp(1.75rem, 1.3rem + 2.1vw, 2.5rem);
+	--body: clamp(1.0625rem, 1.03rem + 0.2vw, 1.125rem);
+	--utility: 0.8125rem;
+
+	/* --- rhythm */
+	--measure: 62ch;
+	--gutter: clamp(1.25rem, 4vw, 2.5rem);
+	--page: 68rem;
+	--section-gap: clamp(3rem, 7vw, 5.5rem);
+
+	/* --- glass grid */
+	--cell: 64px;
+	--mortar: 3px;
+
+	/* --- motion (section 6: three moments, then stop) */
+	--spring: cubic-bezier(0.22, 1.16, 0.36, 1);
+	--ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (min-width: 48rem) {
+	:root {
+		--cell: 92px;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--font);
+	font-weight: 400;
+	font-size: var(--body);
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+	margin: 0;
+}
+
+ul,
+ol {
+	padding: 0;
+	list-style: none;
+}
+
+h1,
+h2,
+h3 {
+	font-weight: 300;
+	letter-spacing: -0.02em;
+	line-height: 1.1;
+}
+
+h2 {
+	font-size: var(--h2);
+}
+
+img,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+a {
+	color: inherit;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+}
+
+/* Section 8: focus rings visible, 2px --ink, offset 2px. Never removed. */
+:focus-visible {
+	outline: 2px solid var(--ink);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* --- shared utility classes ------------------------------------------- */
+
+.u-page {
+	width: 100%;
+	max-width: var(--page);
+	margin-inline: auto;
+	padding-inline: var(--gutter);
+}
+
+.u-measure {
+	max-width: var(--measure);
+}
+
+/* Section 3, role three: anything that lines up gets tabular numerals. */
+.u-num {
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.04em;
+}
+
+.u-utility {
+	font-size: var(--utility);
+	line-height: 1.4;
+	letter-spacing: 0.04em;
+	color: var(--glass-ink);
+}
+
+.u-hairline {
+	height: 1px;
+	border: 0;
+	background: var(--metal);
+	opacity: 0.9;
+}
+
+.u-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Section 6, moment two: scroll reveal. Hidden only when JS is present and
+   the user has not asked for reduced motion, so the no-JS and reduced-motion
+   renders are the final position. */
+@media (prefers-reduced-motion: no-preference) {
+	.has-js .u-reveal {
+		opacity: 0;
+		transform: translateY(12px);
+		transition:
+			opacity 520ms var(--ease),
+			transform 520ms var(--spring);
+		transition-delay: calc(var(--reveal-i, 0) * 40ms);
+	}
+
+	.has-js .u-reveal.is-in {
+		opacity: 1;
+		transform: none;
+	}
+}
