@@ -1,0 +1,40 @@
+---
+/**
+ * The personality valve. Three uses only: the footer, the closed state, and
+ * the favicon (public/favicon.svg, cropped to her head). Always --ink line art,
+ * never coloured in, never gradient.
+ *
+ * TABLE_LINE is where her drawn horizontal table line sits, as a fraction of
+ * the artwork's height. Measured off a render of the SVG, not guessed: the
+ * footer aligns its top rule to exactly this point so the drawing and the rule
+ * read as one line.
+ */
+import raw from '../assets/brand/momo-mascot.svg?raw';
+
+export const TABLE_LINE = 0.849;
+export const ASPECT = 621.86 / 1000;
+
+interface Props {
+	width?: string;
+	class?: string;
+}
+
+const { width = '320px', class: className } = Astro.props;
+---
+
+<div class:list={['mascot', className]} style={`--mascot-w:${width}`}>
+	<Fragment set:html={raw} />
+</div>
+
+<style>
+	.mascot {
+		width: var(--mascot-w);
+		color: var(--ink);
+	}
+
+	.mascot :global(svg) {
+		width: 100%;
+		aspect-ratio: 1000 / 621.86;
+		height: auto;
+	}
+</style>

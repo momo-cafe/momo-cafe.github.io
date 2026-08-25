@@ -1,0 +1,71 @@
+---
+/**
+ * glasblok. The one bold element on the page.
+ *
+ * A grid of soft-cornered frosted squares, drawn entirely with background
+ * gradients on a single element: no DOM nodes per cell and nothing that can
+ * shift layout. The tiling trick is the last layer: one radial gradient placed
+ * at the 0 0 corner of a cell-sized, repeated background paints a paper-coloured
+ * dot on every grid intersection at once, which is what rounds all four corners
+ * of every block. The 135deg layer is the pressed highlight along each block's
+ * top-left edge.
+ *
+ * aria-hidden because it carries no information; the photo behind it bleeds
+ * through at low opacity, diffused, the way the espresso machine looks through
+ * the bar.
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={['glass', className]} aria-hidden="true"></div>
+
+<style>
+	.glass {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+		background-image:
+			/* 1. paper dot on every intersection: rounds all four corners */
+			radial-gradient(
+				circle calc(var(--cell) * 0.13) at calc(var(--mortar) / 2) calc(var(--mortar) / 2),
+				rgba(239, 237, 232, 0.92) 62%,
+				rgba(239, 237, 232, 0) 66%
+			),
+			/* 2 + 3. the mortar between blocks */
+				repeating-linear-gradient(
+					90deg,
+					rgba(239, 237, 232, 0.92) 0 var(--mortar),
+					rgba(239, 237, 232, 0) var(--mortar) var(--cell)
+				),
+			repeating-linear-gradient(
+				0deg,
+				rgba(239, 237, 232, 0.92) 0 var(--mortar),
+				rgba(239, 237, 232, 0) var(--mortar) var(--cell)
+			),
+			/* 4. inset highlight on the top-left edge of each block */
+				linear-gradient(
+					135deg,
+					rgba(247, 246, 243, 0.62) 0 7%,
+					rgba(247, 246, 243, 0.14) 26%,
+					rgba(247, 246, 243, 0) 42%
+				),
+			/* 5. the glass face itself, one gradient across the whole grid */
+				linear-gradient(
+					158deg,
+					rgba(198, 203, 207, 0.72) 0%,
+					rgba(175, 189, 184, 0.62) 46%,
+					rgba(126, 143, 139, 0.58) 100%
+				);
+		background-size:
+			var(--cell) var(--cell),
+			var(--cell) var(--cell),
+			var(--cell) var(--cell),
+			var(--cell) var(--cell),
+			100% 100%;
+		background-repeat: repeat, repeat, repeat, repeat, no-repeat;
+	}
+</style>

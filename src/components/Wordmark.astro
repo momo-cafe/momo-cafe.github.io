@@ -1,0 +1,36 @@
+---
+/**
+ * The custom blobby face, always as artwork and never as live text.
+ * fill="currentColor" is already on the SVG, so it inverts on dark sections for
+ * free. Minimum width 88px (design language, section 3).
+ */
+import raw from '../assets/brand/momo-wordmark.svg?raw';
+
+interface Props {
+	width?: string;
+	href?: string;
+	class?: string;
+}
+
+const { width = '112px', href, class: className } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag class:list={['wordmark', className]} style={`--w:${width}`} href={href}>
+	<Fragment set:html={raw} />
+</Tag>
+
+<style>
+	.wordmark {
+		display: block;
+		width: max(88px, var(--w));
+		color: var(--ink);
+	}
+
+	.wordmark :global(svg) {
+		width: 100%;
+		/* Explicit ratio so the wordmark reserves its box before first paint. */
+		aspect-ratio: 1000 / 255.61;
+		height: auto;
+	}
+</style>
