@@ -14,9 +14,11 @@ import { t } from '../lib/t.js';
 interface Props {
 	items: any[];
 	locale: string;
+	/** Names the scroll region for assistive tech and gives it a tab stop. */
+	label: string;
 }
 
-const { items, locale } = Astro.props;
+const { items, locale, label } = Astro.props;
 
 const files = import.meta.glob<{ default: ImageMetadata }>(
 	'../assets/gallery/*.{jpg,jpeg,png,avif,webp}',
@@ -42,7 +44,9 @@ const resolved = items
 	.filter(Boolean);
 ---
 
-<div class="gallery">
+{/* tabindex makes the overflowing row reachable by keyboard: on mobile the
+    polaroids past the first one are only in reach by scrolling it. */}
+<div class="gallery" role="group" aria-label={label} tabindex="0">
 	{
 		resolved.map((item: any, index: number) => (
 			<div class="gallery__cell u-reveal" style={`--reveal-i:${index}`}>

@@ -90,7 +90,7 @@ const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpe
 
 <section class="section u-page" id="binnen" aria-labelledby="binnen-heading">
 	<h2 id="binnen-heading" class="u-visually-hidden">{t(ui.galleryHeading, locale)}</h2>
-	<Gallery items={gallery} locale={locale} />
+	<Gallery items={gallery} locale={locale} label={t(ui.galleryHeading, locale)} />
 </section>
 
 <section class="about" id="over" aria-labelledby="over-heading">
