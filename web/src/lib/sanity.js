@@ -321,7 +321,10 @@ async function createClient() {
 		projectId: PROJECT_ID,
 		dataset: DATASET,
 		apiVersion: API_VERSION,
-		useCdn: true,
+		// Not the CDN: a publish triggers this build seconds later, and the CDN
+		// can still be serving the pre-edit document. The uncached API is the
+		// difference between an edit appearing now and appearing one build late.
+		useCdn: false,
 		perspective: 'published',
 		// The dataset may well be public; only send a token when there is one.
 		...(token ? { token } : {}),
