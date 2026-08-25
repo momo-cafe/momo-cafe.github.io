@@ -1,0 +1,92 @@
+---
+/**
+ * Dutch signposting requirement: allergen information has to be freely
+ * accessible, legible and understandable. Only the codes actually used on the
+ * card are listed, so the block stays readable.
+ */
+import { t } from '../lib/t.js';
+
+interface Props {
+	menu: Record<string, any>;
+	ui: Record<string, any>;
+	locale: string;
+	id?: string;
+}
+
+const { menu, ui, locale, id = 'allergenen' } = Astro.props;
+
+const used = new Set<string>(
+	menu.sections.flatMap((section: any) => section.items.flatMap((item: any) => item.allergens ?? []))
+);
+
+const codes = Object.entries(menu.allergenCodes ?? {}).filter(
+	([code]) => code !== '_note' && used.has(code)
+);
+---
+
+<section class="allergens" id={id} aria-labelledby={`${id}-heading`}>
+	<h3 id={`${id}-heading`} class="allergens__heading">{t(ui.allergensHeading, locale)}</h3>
+	<dl class="allergens__list">
+		{
+			codes.map(([code, label]) => (
+				<div class="allergens__item" id={`${id}-${code}`}>
+					<dt class="u-num">{code.toLowerCase()}</dt>
+					<dd>{t(label, locale)}</dd>
+				</div>
+			))
+		}
+	</dl>
+	<p class="allergens__notice u-measure">{t(menu.allergenNotice, locale)}</p>
+</section>
+
+<style>
+	.allergens {
+		padding: clamp(1.25rem, 3vw, 1.75rem);
+		border-radius: 2px;
+		background: var(--paper-lift);
+		/* The top edge of a card is where metal is allowed. */
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+		border-top: 1px solid transparent;
+		border-image: var(--metal) 1;
+	}
+
+	.allergens__heading {
+		font-size: 1.125rem;
+		margin-bottom: 0.85rem;
+	}
+
+	.allergens__list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem 1.25rem;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		color: var(--glass-ink);
+	}
+
+	.allergens__item {
+		display: flex;
+		gap: 0.4rem;
+		scroll-margin-top: 5rem;
+	}
+
+	.allergens__item dt {
+		color: var(--ink);
+	}
+
+	.allergens__item dd {
+		margin: 0;
+	}
+
+	.allergens__item:target dd {
+		color: var(--ink);
+	}
+
+	.allergens__notice {
+		margin-top: 1.1rem;
+		font-size: var(--utility);
+		line-height: 1.5;
+		letter-spacing: 0.04em;
+		color: var(--glass-ink);
+	}
+</style>

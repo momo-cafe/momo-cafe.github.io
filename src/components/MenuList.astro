@@ -1,0 +1,144 @@
+---
+/**
+ * The menu as real HTML text. No PDF, no photograph of a menu card.
+ * The € appears once per section heading, never on a row: the price column is
+ * tabular so it lines up, and a repeated currency symbol makes it wobble.
+ */
+import { t } from '../lib/t.js';
+
+interface Props {
+	menu: Record<string, any>;
+	ui: Record<string, any>;
+	locale: string;
+	/** Anchor id of the allergen block the codes link to. */
+	allergensId?: string;
+}
+
+const { menu, ui, locale, allergensId = 'allergenen' } = Astro.props;
+const codes = menu.allergenCodes ?? {};
+---
+
+<div class="menu">
+	<p class="menu__order u-utility">{t(menu.orderNotice, locale)}</p>
+
+	{
+		menu.sections.map((section: any) => (
+			<section class="menu__section" id={section.id} aria-labelledby={`heading-${section.id}`}>
+				<div class="menu__head">
+					<h3 id={`heading-${section.id}`}>{t(section.heading, locale)}</h3>
+					<span class="menu__euro u-num">€</span>
+				</div>
+				<hr class="u-hairline" />
+
+				<ul class="menu__items">
+					{section.items.map((item: any, index: number) => (
+						<li class="row u-reveal" style={`--reveal-i:${index}`}>
+							<p class="row__name">
+								{item.highlight && <span class="row__dot" aria-hidden="true" />}
+								{t(item.name, locale)}
+								{(item.allergens ?? []).length > 0 && (
+									<sup class="row__allergens">
+										{item.allergens.map((code: string) => (
+											<a
+												href={`#${allergensId}-${code}`}
+												aria-label={t(codes[code], locale)}
+												class="u-num"
+											>
+												{code.toLowerCase()}
+											</a>
+										))}
+									</sup>
+								)}
+							</p>
+							<p class="row__price u-num">{item.price}</p>
+							{item.note && <p class="row__note">{t(item.note, locale)}</p>}
+						</li>
+					))}
+				</ul>
+			</section>
+		))
+	}
+</div>
+
+<style>
+	.menu {
+		display: grid;
+		gap: clamp(2rem, 4vw, 2.75rem);
+	}
+
+	.menu__order {
+		margin: 0;
+	}
+
+	.menu__head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.menu__euro {
+		font-size: var(--utility);
+		color: var(--glass-ink);
+	}
+
+	.menu__items {
+		display: grid;
+		gap: 0.55rem;
+		margin-top: 0.9rem;
+	}
+
+	.row {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		column-gap: 1.25rem;
+		align-items: baseline;
+	}
+
+	.row__name {
+		grid-column: 1;
+	}
+
+	.row__price {
+		grid-column: 2;
+		text-align: right;
+		font-size: 0.9375rem;
+		color: var(--glass-ink);
+	}
+
+	.row__note {
+		grid-column: 1 / -1;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		color: var(--glass-ink);
+	}
+
+	/* --zon, second and last appearance on the page: a highlight dot. */
+	.row__dot {
+		display: inline-block;
+		width: 0.4rem;
+		height: 0.4rem;
+		margin-right: 0.45rem;
+		border-radius: 50%;
+		background: var(--zon);
+		vertical-align: 0.1em;
+	}
+
+	.row__allergens {
+		margin-left: 0.35rem;
+		font-size: 0.625rem;
+		line-height: 1;
+	}
+
+	.row__allergens a {
+		color: var(--glass-ink);
+		text-decoration: none;
+		margin-left: 0.12rem;
+	}
+
+	.row__allergens a:hover {
+		color: var(--ink);
+		text-decoration: underline;
+	}
+</style>
