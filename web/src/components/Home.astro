@@ -100,7 +100,9 @@ const jumps = [
 			</address>
 		</section>
 
-		{/* Dot-separated inline nav. Scrolls away and does not come back. */}
+		{/* Dot-separated inline nav. On desktop it scrolls away and does not
+		    come back; on a phone it pins to the bottom of the viewport, where
+		    the thumb already is. */}
 		<nav class="jump" aria-label={t(ui.menuHeading, locale)}>
 			<ul>
 				{
@@ -344,6 +346,54 @@ const jumps = [
 
 		.about__cols {
 			grid-template-columns: 1fr;
+		}
+
+		/*
+		 * The jump nav pins to the bottom of the viewport. In flow it scrolls
+		 * away and never returns, so after reading a long menu the route link
+		 * - the one thing that gets someone through the door - is reachable
+		 * only by scrolling back to the top. Bottom is also where the thumb
+		 * already is.
+		 */
+		.jump {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			/* Under the language toggle (30), over the page. */
+			z-index: 20;
+			/* Content scrolls underneath, so this cannot be transparent. */
+			background: var(--paper);
+			border-top: var(--hair) solid var(--ink);
+			padding-block: calc(12 * var(--u));
+			/* Notched phones and home-screen web apps. */
+			padding-bottom: calc(12 * var(--u) + env(safe-area-inset-bottom, 0px));
+		}
+
+		/* Dots earn their keep across a wide row. In a bar this narrow the
+		   links are already clearly separate and the dots are just noise. */
+		.jump li + li::before {
+			display: none;
+		}
+
+		/*
+		 * A 44px touch target, which the flow version missed at about 32px.
+		 * The type is roughly 18u tall here, so 16u each side clears 44px
+		 * across this whole range. The horizontal padding comes in so four
+		 * Dutch labels still fit on one line at 390px rather than wrapping
+		 * the bar to two rows.
+		 */
+		.jump a {
+			padding: calc(16 * var(--u)) calc(12 * var(--u));
+		}
+
+		/*
+		 * Reserve the bar's height at the end of the document so it never
+		 * covers the last line of the footer. Deliberately a little generous:
+		 * the bar itself comes to about 74u.
+		 */
+		:global(body) {
+			padding-bottom: calc(82 * var(--u) + env(safe-area-inset-bottom, 0px));
 		}
 	}
 </style>
