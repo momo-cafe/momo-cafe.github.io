@@ -1,0 +1,54 @@
+---
+/**
+ * The most-visited block on the page. Consecutive identical days collapse into
+ * ranges, so the current data is two rows and not seven.
+ *
+ * Today's row is marked by the client script, not at build time: a static build
+ * would bake in the date it was built and then lie for six days.
+ */
+import { t } from '../lib/t.js';
+import { groupedHours, groupLabel, rangeLabel } from '../lib/hours.js';
+
+interface Props {
+	hours: Record<string, any>;
+	ui: Record<string, any>;
+	locale: string;
+}
+
+const { hours, ui, locale } = Astro.props;
+const groups = groupedHours(hours);
+---
+
+<dl class="hours u-num">
+	{
+		groups.map((group) => (
+			<div class="hours__row" data-days={group.days.join(',')}>
+				<dt>{groupLabel(group, locale)}</dt>
+				<dd>{rangeLabel(group.ranges) ?? t(ui.closedDay, locale)}</dd>
+			</div>
+		))
+	}
+</dl>
+
+<style>
+	.hours {
+		display: grid;
+		gap: 0.15rem;
+		font-size: var(--utility);
+		color: var(--glass-ink);
+	}
+
+	.hours__row {
+		display: grid;
+		grid-template-columns: 4.5rem auto;
+		gap: 0.75rem;
+	}
+
+	.hours__row dd {
+		margin: 0;
+	}
+
+	.hours__row.is-today {
+		color: var(--ink);
+	}
+</style>

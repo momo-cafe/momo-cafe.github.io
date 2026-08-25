@@ -1,0 +1,77 @@
+---
+/**
+ * The highest-value element on the page: someone standing on the Jatstraat at
+ * 16:50 wants exactly this line.
+ *
+ * The site is statically built, so a build-time answer would be stale within
+ * the hour. The server renders the plain hours as the no-JavaScript fallback,
+ * and the one client script recomputes the live line in Europe/Amsterdam. The
+ * dot only appears once that script has run, so the page never asserts
+ * open-or-closed without having actually computed it.
+ */
+import { t } from '../lib/t.js';
+import { groupedHours, groupLabel, rangeLabel } from '../lib/hours.js';
+
+interface Props {
+	hours: Record<string, any>;
+	status: Record<string, any>;
+	ui: Record<string, any>;
+	locale: string;
+}
+
+const { hours, status, ui, locale } = Astro.props;
+
+// Fallback copy: the regular week, collapsed, so the information is never
+// missing even with scripting off.
+const fallback = groupedHours(hours)
+	.map((group) => `${groupLabel(group, locale)} ${rangeLabel(group.ranges) ?? t(ui.closedDay, locale)}`)
+	.join(' · ');
+
+const payload = {
+	hours,
+	strings: {
+		openUntil: t(status.openUntil, locale),
+		closed: t(status.closed, locale),
+		opensAt: t(status.opensAt, locale),
+		opensToday: t(status.opensToday, locale),
+	},
+};
+---
+
+<p class="status" data-momo-status>
+	<span class="status__dot" data-momo-dot aria-hidden="true"></span>
+	<span class="status__text" data-momo-text>{fallback}</span>
+</p>
+
+<script type="application/json" data-momo-status-data set:html={JSON.stringify(payload)} is:inline
+></script>
+
+<style>
+	.status {
+		display: flex;
+		align-items: baseline;
+		gap: 0.55rem;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		font-variant-numeric: tabular-nums;
+		color: var(--ink);
+	}
+
+	.status__dot {
+		display: none;
+		flex: none;
+		width: 0.55rem;
+		height: 0.55rem;
+		border-radius: 50%;
+		background: var(--glass-deep);
+		transform: translateY(-0.05rem);
+	}
+
+	:global(.has-js) .status__dot {
+		display: block;
+	}
+
+	.status__dot[data-open='true'] {
+		background: var(--zon);
+	}
+</style>
