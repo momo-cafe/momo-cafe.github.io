@@ -79,6 +79,14 @@ const canonical = new URL(localePath(locale, page), Astro.site).href;
 		    state only ever applies when the script that ends it is present. */}
 		<script is:inline>
 			document.documentElement.classList.add('has-js');
+			// Failsafe: the reveal start state is opacity 0, so if the module
+			// script below never runs (blocked bundle, JS error) the content
+			// would stay invisible. Undo the marker if nothing claimed it.
+			setTimeout(function () {
+				if (!document.documentElement.hasAttribute('data-momo-ready')) {
+					document.documentElement.classList.remove('has-js');
+				}
+			}, 2500);
 		</script>
 	</head>
 
@@ -103,6 +111,9 @@ const canonical = new URL(localePath(locale, page), Astro.site).href;
 			 */
 			import { computeStatus } from '../lib/hours.js';
 			import { fill } from '../lib/t.js';
+
+			// Claims the failsafe in the head: this script is alive.
+			document.documentElement.setAttribute('data-momo-ready', '');
 
 			const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
