@@ -9,5 +9,12 @@ export default defineConfig({
   // sits at the domain root and needs no `base`.
   site: 'https://momo-cafe.nl',
 
-  integrations: [sitemap()],
+  // Dutch is the default and lives at /, English at /en/.
+  i18n: {
+    defaultLocale: 'nl',
+    locales: ['nl', 'en'],
+    routing: { prefixDefaultLocale: false },
+  },
+
+  integrations: [sitemap({ i18n: { defaultLocale: 'nl', locales: { nl: 'nl-NL', en: 'en' } } })],
 });
