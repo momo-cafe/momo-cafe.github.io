@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+import PrivacyPage from '../../components/PrivacyPage.astro';
+import { site } from '../../lib/content.js';
+import { t } from '../../lib/t.js';
+
+const locale = 'en';
+---
+
+<Base
+	site={site}
+	locale={locale}
+	page="privacy"
+	title={`${t(site.privacy.heading, locale)} · ${site.business.name}`}
+	description={t(site.privacy.body, locale)[0]}
+>
+	<PrivacyPage locale={locale} />
+</Base>

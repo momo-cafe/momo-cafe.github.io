@@ -1,15 +1,18 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Base from '../layouts/Base.astro';
+import Home from '../components/Home.astro';
+import { site } from '../lib/content.js';
+import { t } from '../lib/t.js';
+
+const locale = 'nl';
 ---
 
-<Layout title="Momo Cafe">
-	<h1>Momo Cafe</h1>
-	<p>
-		This is a static Astro site. Every push to <code>main</code> builds it and publishes
-		the result to GitHub Pages.
-	</p>
-	<p>
-		Edit <code>src/pages/index.astro</code> to change this page, or add a new
-		<code>.astro</code> file under <code>src/pages/</code> to add a route.
-	</p>
-</Layout>
+<Base
+	site={site}
+	locale={locale}
+	title={t(site.meta.title, locale)}
+	description={t(site.meta.description, locale)}
+	schema
+>
+	<Home locale={locale} />
+</Base>

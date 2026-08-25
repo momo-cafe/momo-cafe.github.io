@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+import Home from '../../components/Home.astro';
+import { site } from '../../lib/content.js';
+import { t } from '../../lib/t.js';
+
+const locale = 'en';
+---
+
+<Base
+	site={site}
+	locale={locale}
+	title={t(site.meta.title, locale)}
+	description={t(site.meta.description, locale)}
+	schema
+>
+	<Home locale={locale} />
+</Base>

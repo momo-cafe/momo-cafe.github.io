@@ -1,0 +1,50 @@
+---
+/**
+ * Plain text, no cookie banner, because there is no analytics and no form.
+ * If analytics is ever added it has to be a cookieless one, and then the banner
+ * becomes mandatory.
+ */
+import { t, localePath } from '../lib/t.js';
+import { site, real } from '../lib/content.js';
+
+interface Props {
+	locale: string;
+}
+
+const { locale } = Astro.props;
+const { privacy, ui, business } = site;
+const email = real(business.email);
+const body = t(privacy.body, locale) as unknown as string[];
+---
+
+<section class="privacy u-page">
+	<h1>{t(privacy.heading, locale)}</h1>
+
+	<div class="privacy__body u-measure">
+		{body.map((paragraph) => <p>{paragraph}</p>)}
+		{email && <p><a href={`mailto:${email}`}>{email}</a></p>}
+	</div>
+
+	<p class="u-utility u-num">{t(privacy.updatedLabel, locale)} {privacy.updated}</p>
+
+	<p class="u-utility">
+		<a href={localePath(locale)}>{t(ui.backHome, locale)}</a>
+	</p>
+</section>
+
+<style>
+	.privacy {
+		display: grid;
+		gap: 1.5rem;
+		padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.5rem, 6vw, 4rem);
+	}
+
+	.privacy h1 {
+		font-size: var(--h2);
+	}
+
+	.privacy__body {
+		display: grid;
+		gap: 0.9rem;
+	}
+</style>

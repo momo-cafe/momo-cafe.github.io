@@ -1,0 +1,205 @@
+---
+/**
+ * The one layout. Both locales and both pages go through here.
+ */
+import '../styles/tokens.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Announcement from '../components/Announcement.astro';
+import LocalBusiness from '../components/LocalBusiness.astro';
+import { t, LOCALES, localePath, DEFAULT_LOCALE } from '../lib/t.js';
+
+interface Props {
+	site: Record<string, any>;
+	locale: string;
+	/** '' for the home page, or a slug like 'privacy'. */
+	page?: string;
+	title: string;
+	description: string;
+	/** Only the home page carries the LocalBusiness block. */
+	schema?: boolean;
+}
+
+const { site, locale, page = '', title, description, schema = false } = Astro.props;
+const { ui } = site;
+
+const canonical = new URL(localePath(locale, page), Astro.site).href;
+---
+
+<!doctype html>
+<html lang={locale}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+
+		{
+			LOCALES.map((code) => (
+				<link rel="alternate" hreflang={code} href={new URL(localePath(code, page), Astro.site).href} />
+			))
+		}
+		<link
+			rel="alternate"
+			hreflang="x-default"
+			href={new URL(localePath(DEFAULT_LOCALE, page), Astro.site).href}
+		/>
+
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<meta name="theme-color" content="#EFEDE8" />
+
+		<link
+			rel="preload"
+			href="/fonts/general-sans-300.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		/>
+		<link
+			rel="preload"
+			href="/fonts/general-sans-400.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		/>
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={site.business.name} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:locale" content={locale === 'nl' ? 'nl_NL' : 'en_GB'} />
+
+		{schema && <LocalBusiness site={site} locale={locale} url={canonical} />}
+
+		{/* Marks the document before first paint, so the scroll-reveal start
+		    state only ever applies when the script that ends it is present. */}
+		<script is:inline>
+			document.documentElement.classList.add('has-js');
+		</script>
+	</head>
+
+	<body>
+		<a class="skip" href="#main">{t(ui.skip, locale)}</a>
+		<Announcement announcement={site.announcement} locale={locale} />
+		<Header locale={locale} ui={ui} page={page} linkHome={page !== ''} />
+
+		<main id="main">
+			<slot />
+		</main>
+
+		<Footer site={site} locale={locale} />
+
+		<script>
+			/*
+			 * The only JavaScript on the site. Three jobs:
+			 *   1. recompute the live open/closed line in Europe/Amsterdam
+			 *   2. reveal polaroids and menu rows on scroll
+			 *   3. keep the scroll position across the language switch
+			 * Everything degrades to a complete, correct page without it.
+			 */
+			import { computeStatus } from '../lib/hours.js';
+			import { fill } from '../lib/t.js';
+
+			const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			// 1. live status
+			const data = document.querySelector('[data-momo-status-data]');
+			const statusRoot = document.querySelector('[data-momo-status]');
+			if (data?.textContent && statusRoot) {
+				const { hours, strings } = JSON.parse(data.textContent);
+				const text = statusRoot.querySelector('[data-momo-text]');
+				const dot = statusRoot.querySelector('[data-momo-dot]');
+				const rows = document.querySelectorAll('[data-days]');
+
+				const paint = () => {
+					const status = computeStatus(hours);
+					if (text) {
+						text.textContent = fill(strings[status.key] ?? strings.closed, {
+							time: status.time ?? '',
+						});
+					}
+					if (dot) dot.dataset.open = String(status.open);
+					for (const row of rows) {
+						const days = (row.dataset.days ?? '').split(',');
+						row.classList.toggle('is-today', days.includes(status.dayKey));
+					}
+				};
+
+				paint();
+				// A phone left open on the counter should not keep showing "open".
+				setInterval(paint, 60_000);
+			}
+
+			// 2. scroll reveal, 12px of travel with a 40ms stagger
+			const targets = document.querySelectorAll('.u-reveal');
+			if (reduceMotion || !('IntersectionObserver' in window)) {
+				for (const el of targets) el.classList.add('is-in');
+			} else {
+				const observer = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (!entry.isIntersecting) continue;
+							entry.target.classList.add('is-in');
+							observer.unobserve(entry.target);
+						}
+					},
+					{ rootMargin: '0px 0px -8% 0px', threshold: 0.05 }
+				);
+				for (const el of targets) observer.observe(el);
+			}
+
+			// 3. the language switch lands on the same section, at the same scroll offset
+			const SCROLL_KEY = 'momo:scroll';
+			for (const link of document.querySelectorAll('[data-lang-link]')) {
+				link.addEventListener('click', () => {
+					try {
+						sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+					} catch {
+						/* private mode: the switch still works, it just jumps to the top */
+					}
+					if (location.hash) {
+						const url = new URL(link.href);
+						url.hash = location.hash;
+						link.href = url.toString();
+					}
+				});
+			}
+
+			try {
+				const saved = sessionStorage.getItem(SCROLL_KEY);
+				sessionStorage.removeItem(SCROLL_KEY);
+				if (saved !== null && !location.hash) {
+					window.scrollTo({ top: Number(saved), behavior: 'auto' });
+				}
+			} catch {
+				/* nothing to restore */
+			}
+		</script>
+
+		<style>
+			.skip {
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 30;
+				padding: 0.6rem 1rem;
+				/* Not --zon: the discipline rules keep that colour for the primary
+				   call to action and the status dot, never a background. */
+				background: var(--ink);
+				color: var(--paper);
+				font-size: var(--utility);
+				letter-spacing: 0.04em;
+				text-decoration: none;
+				transform: translateY(-120%);
+			}
+
+			.skip:focus {
+				transform: none;
+			}
+		</style>
+	</body>
+</html>

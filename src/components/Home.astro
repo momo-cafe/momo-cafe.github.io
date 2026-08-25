@@ -1,0 +1,250 @@
+---
+/**
+ * The single page, section order exactly as the wireframe in section 7 of the
+ * design language. Both locales render this same component; nothing here reads
+ * global state and no copy is hardcoded.
+ */
+import { getImage } from 'astro:assets';
+import heroImage from '../assets/hero.jpg';
+import GlassGrid from './GlassGrid.astro';
+import OpenStatus from './OpenStatus.astro';
+import Hours from './Hours.astro';
+import MenuList from './MenuList.astro';
+import Allergens from './Allergens.astro';
+import Gallery from './Gallery.astro';
+import { t } from '../lib/t.js';
+import { site, menu, fullAddress, mapLinks, real } from '../lib/content.js';
+
+interface Props {
+	locale: string;
+}
+
+const { locale } = Astro.props;
+const { business, ui, hero, status, hours, about, practical, gallery } = site;
+
+const maps = mapLinks(business);
+const phone = real(business.phone);
+
+const heroSizes = { width: 1600, height: 1067 };
+const heroAvif = await getImage({ src: heroImage, ...heroSizes, format: 'avif' });
+const heroWebp = await getImage({ src: heroImage, ...heroSizes, format: 'webp' });
+const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpeg' });
+---
+
+<section class="hero">
+	{/* The photograph sits behind the glass at low opacity so colour bleeds
+	    through, diffused. Decorative, so it carries no alt text. */}
+	<div class="hero__media" aria-hidden="true">
+		<picture>
+			<source srcset={heroAvif.src} type="image/avif" />
+			<source srcset={heroWebp.src} type="image/webp" />
+			<img
+				src={heroFallback.src}
+				alt=""
+				width={heroSizes.width}
+				height={heroSizes.height}
+				fetchpriority="high"
+				decoding="async"
+			/>
+		</picture>
+	</div>
+
+	<GlassGrid class="hero__glass" />
+
+	<div class="hero__content u-page">
+		<OpenStatus hours={hours} status={status} ui={ui} locale={locale} />
+		<h1 class="hero__headline">{t(hero.headline, locale)}</h1>
+		<p class="hero__sub u-measure">{t(hero.sub, locale)}</p>
+
+		<p class="hero__cta">
+			<a class="btn btn--primary" href={maps.google} rel="noreferrer">{t(ui.routeCta, locale)}</a>
+			<a class="btn btn--quiet" href="#kaart">{t(ui.menuCta, locale)}</a>
+		</p>
+	</div>
+</section>
+
+<section class="where u-page" id="waar" aria-labelledby="waar-heading">
+	<h2 id="waar-heading" class="u-visually-hidden">{t(ui.hoursHeading, locale)}</h2>
+
+	<Hours hours={hours} ui={ui} locale={locale} />
+
+	<address class="where__address">
+		<a class="where__street" href={maps.google} rel="noreferrer">{fullAddress(business)}</a>
+		<span class="where__links u-utility">
+			<a href={maps.google} rel="noreferrer">{t(ui.googleMaps, locale)}</a>
+			<a href={maps.apple} rel="noreferrer">{t(ui.appleMaps, locale)}</a>
+			{
+				phone && (
+					<a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{`${t(ui.phoneLabel, locale)} ${phone}`}</a>
+				)
+			}
+		</span>
+	</address>
+</section>
+
+<section class="section u-page" id="kaart" aria-labelledby="kaart-heading">
+	<h2 id="kaart-heading">{t(ui.menuHeading, locale)}</h2>
+	<MenuList menu={menu} ui={ui} locale={locale} />
+	<Allergens menu={menu} ui={ui} locale={locale} />
+</section>
+
+<section class="section u-page" id="binnen" aria-labelledby="binnen-heading">
+	<h2 id="binnen-heading" class="u-visually-hidden">{t(ui.galleryHeading, locale)}</h2>
+	<Gallery items={gallery} locale={locale} />
+</section>
+
+<section class="about" id="over" aria-labelledby="over-heading">
+	<div class="u-page about__inner">
+		<h2 id="over-heading">{t(about.heading, locale)}</h2>
+		<p class="about__body u-measure">{t(about.body, locale)}</p>
+
+		<h3 class="u-visually-hidden">{t(ui.practicalHeading, locale)}</h3>
+		<ul class="practical">
+			{practical.items.map((item: any) => <li>{t(item, locale)}</li>)}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.hero {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		padding-block: clamp(1.5rem, 4vw, 3.5rem) clamp(2rem, 5vw, 4rem);
+	}
+
+	.hero__media {
+		position: absolute;
+		inset: 0;
+		z-index: -2;
+		/* Final state first: this is what reduced motion and no-JS get. */
+		filter: blur(6px);
+		opacity: 0.55;
+	}
+
+	.hero__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.hero__glass {
+		z-index: -1;
+	}
+
+	.hero__content {
+		display: grid;
+		gap: clamp(0.75rem, 2vw, 1.1rem);
+	}
+
+	.hero__headline {
+		font-size: var(--display);
+		line-height: 0.98;
+		max-width: 24ch;
+	}
+
+	.hero__sub {
+		color: var(--ink);
+	}
+
+	.hero__cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+		margin-top: 0.35rem;
+	}
+
+	.btn {
+		display: inline-block;
+		padding: 0.7rem 1.4rem;
+		border-radius: 999px;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		text-decoration: none;
+	}
+
+	/* --zon, first of at most two appearances on this screen: the primary CTA.
+	   The status dot is the other one. */
+	.btn--primary {
+		background: var(--zon);
+		color: var(--ink);
+	}
+
+	.btn--quiet {
+		background: var(--paper-lift);
+		color: var(--ink);
+		box-shadow: inset 0 0 0 1px var(--glass-deep);
+	}
+
+	.where {
+		display: grid;
+		gap: 1rem;
+		padding-block: clamp(1.25rem, 3vw, 2rem);
+	}
+
+	.where__address {
+		display: grid;
+		gap: 0.35rem;
+		font-style: normal;
+	}
+
+	.where__street {
+		font-size: var(--body);
+		color: var(--ink);
+		text-decoration-color: var(--glass-deep);
+	}
+
+	.where__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.9rem;
+	}
+
+	.section {
+		display: grid;
+		gap: clamp(1.25rem, 3vw, 2rem);
+		padding-block: var(--section-gap) 0;
+		scroll-margin-top: 4.5rem;
+	}
+
+	/* --ply warms up the long text section so the page does not go cold. */
+	.about {
+		margin-top: var(--section-gap);
+		background: var(--ply-deep);
+		color: var(--paper);
+	}
+
+	.about__inner {
+		display: grid;
+		gap: 1.1rem;
+		padding-block: clamp(2.5rem, 6vw, 4rem);
+	}
+
+	.about__body {
+		color: var(--paper);
+	}
+
+	.practical {
+		display: grid;
+		gap: 0.3rem;
+		margin-top: 0.75rem;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+	}
+
+	/* Section 6, moment one: focus pulling in through glass. Runs once. */
+	@media (prefers-reduced-motion: no-preference) {
+		.hero__media {
+			animation: momo-focus 900ms var(--ease) both;
+		}
+
+		@keyframes momo-focus {
+			from {
+				filter: blur(14px);
+			}
+			to {
+				filter: blur(6px);
+			}
+		}
+	}
+</style>
