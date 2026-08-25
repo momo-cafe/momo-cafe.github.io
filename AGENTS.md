@@ -12,7 +12,9 @@ docs/     the design language and the original brief
 Each app owns its own `package.json` and `node_modules`. There is deliberately
 **no** npm workspace hoisting: the Studio has to resolve its own React copy for
 Sanity's auto-updates to work, which hoisting breaks. The root `package.json`
-holds nothing but convenience scripts that delegate with `npm --prefix`.
+carries no runtime dependencies - only convenience scripts that delegate with
+`npm --prefix`, plus `@sanity/client` as a devDependency, because
+`scripts/seed-sanity.mjs` lives at the root and has to resolve it from there.
 
 ## Development
 

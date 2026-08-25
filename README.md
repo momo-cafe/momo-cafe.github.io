@@ -54,7 +54,7 @@ web/public/fonts/           self-hosted General Sans and Darumadrop One
 web/public/CNAME            the custom domain, required in the build artifact
 scripts/seed-sanity.mjs     one-time push of web/src/content/*.json into the dataset
 studio/                     the Sanity Studio, its own package, deployed on its own
-package.json                root: convenience scripts only, no dependencies
+package.json                root: delegating scripts + the seed script's client
 ```
 
 ### Content

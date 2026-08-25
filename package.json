@@ -15,5 +15,8 @@
     "studio:deploy": "npm --prefix studio run deploy",
     "seed": "node scripts/seed-sanity.mjs",
     "setup": "npm --prefix web install && npm --prefix studio install"
+  },
+  "devDependencies": {
+    "@sanity/client": "^8.2.0"
   }
 }
