@@ -9,12 +9,19 @@ the hero is the highest-value element on the page.
 
 ## Local development
 
+Two apps live side by side, each with its own dependencies; the root
+`package.json` only delegates. Run everything from the repo root:
+
 ```sh
-npm install
-npm run dev      # http://localhost:4321
-npm run build    # static build into ./dist
-npm run preview  # serve the built ./dist
+npm run setup    # install web/ and studio/
+npm run dev      # the site, http://localhost:4321
+npm run studio   # the studio, http://localhost:3333
+npm run build    # static build into web/dist
+npm run preview  # serve the built web/dist
 ```
+
+There is deliberately no npm workspace hoisting: Sanity's auto-updates need the
+Studio to resolve its own React copy, and hoisting breaks that.
 
 `npm run build` **fails on purpose** until the KVK number and btw-id are filled
 in — see [Before launch](#before-launch). For a pre-launch preview:
@@ -29,7 +36,7 @@ MOMO_ALLOW_PLACEHOLDERS=1 npm run build
 docs/
   momo-design-language.md   binding: every colour, type and motion decision
   BUILD-PROMPT.md           the original brief
-src/
+web/src/
   content/site.json         business data, hours, hero, about, ui strings, privacy
   content/menu.json         the menu, transcribed from the printed cards
   lib/t.js                  t(field, locale) — the only place a locale key is read
@@ -43,39 +50,42 @@ src/
   pages/index.astro         nl at /
   pages/en/index.astro      en at /en/
   pages/privacy.astro       + en/privacy.astro
-public/fonts/               self-hosted General Sans and Darumadrop One
-public/CNAME                the custom domain, required in the build artifact
-scripts/seed-sanity.mjs     one-time push of src/content/*.json into the dataset
-studio/                     the Sanity Studio, its own package, installed separately
+web/public/fonts/           self-hosted General Sans and Darumadrop One
+web/public/CNAME            the custom domain, required in the build artifact
+scripts/seed-sanity.mjs     one-time push of web/src/content/*.json into the dataset
+studio/                     the Sanity Studio, its own package, deployed on its own
+package.json                root: convenience scripts only, no dependencies
 ```
 
 ### Content
 
-All copy lives in `src/content/*.json`. Components hardcode no visitor-facing
+All copy lives in `web/src/content/*.json`. Components hardcode no visitor-facing
 text; the only exception the brief allows is `aria-label` values. Every
 translatable value is an object shaped `{ nl, en }`, which mirrors Sanity's
 `localeString` pattern, so moving to a CMS later is a schema mapping rather than
 a rewrite.
 
-Read those values through `t(field, locale)` from `src/lib/t.js`. Nothing else
+Read those values through `t(field, locale)` from `web/src/lib/t.js`. Nothing else
 may index a locale key directly - that function is the seam.
 
 ### Sanity
 
 The same content also lives in Sanity (project `drw50awd`, dataset
-`production`), edited in the studio under `studio/`. `src/lib/content.js` fetches
-it once at build time and `src/lib/sanity.js` normalises the two singleton
-documents back into exactly the shapes `src/content/*.json` have, which is why
+`production`), edited in the studio under `studio/`. `web/src/lib/content.js` fetches
+it once at build time and `web/src/lib/sanity.js` normalises the two singleton
+documents back into exactly the shapes `web/src/content/*.json` have, which is why
 no component knows a CMS is involved. If Sanity is unreachable, empty, or
 `MOMO_CONTENT=local` is set, the build uses the JSON instead and logs which
 source it used. The JSON is therefore both the fallback and the seed.
 
 ```sh
-cd studio && npm install && npx sanity login && npm run dev   # studio on :3333
-npm run deploy                                               # to <name>.sanity.studio
+npm run setup                                          # both apps
+npm --prefix studio exec sanity login                  # once, to edit content
+npm run studio                                         # studio on :3333
+npm run studio:deploy                                  # to <name>.sanity.studio
 
-node scripts/seed-sanity.mjs --dry-run                        # what would be written
-SANITY_WRITE_TOKEN=sk... node scripts/seed-sanity.mjs         # one-time bootstrap
+npm run seed -- --dry-run                              # what would be written
+SANITY_WRITE_TOKEN=sk... npm run seed                  # one-time bootstrap
 ```
 
 `studio/` is deliberately not part of the root package.json: the website builds
@@ -89,7 +99,7 @@ across, and restores the scroll position via `sessionStorage`.
 
 ### Hours and the live status
 
-`src/lib/hours.js` is dependency-free and side-effect-free, because the same code
+`web/src/lib/hours.js` is dependency-free and side-effect-free, because the same code
 runs at build time and in the browser. The site is statically built, so a
 build-time open/closed answer would be stale within the hour: the server renders
 the collapsed week as the no-JavaScript fallback, and the client script
@@ -102,7 +112,7 @@ owner announces a closure without calling anyone.
 
 ### JavaScript
 
-One bundled module script, in `src/layouts/Base.astro`, doing three things: the
+One bundled module script, in `web/src/layouts/Base.astro`, doing three things: the
 live status, the scroll reveal, and the language-switch scroll position. There is
 no framework and no island. With scripting off, the page renders complete: hours,
 menu, address and all copy. Under `prefers-reduced-motion: reduce` the page is
@@ -114,7 +124,7 @@ it, so a blocked bundle can never leave the content invisible.
 
 ### Colour and contrast
 
-`src/styles/tokens.css` holds the palette from the design language. Two tokens
+`web/src/styles/tokens.css` holds the palette from the design language. Two tokens
 are additions: `--glass-ink` and `--ply-deep`, the same hues darkened until body
 text passes WCAG AA. The design document asserts that `--glass-deep` on `--paper`
 passes AA; measured, it is 2.9:1, and `--paper` on `--ply` is 3.5:1. Fills, dots,
@@ -141,7 +151,7 @@ DNS for the apex domain: four `A` records on `@` to `185.199.108-111.153`, four
 ## Before launch
 
 The build refuses to run while the legally required fields are placeholders. In
-`src/content/site.json`, these must be confirmed with the owner:
+`web/src/content/site.json`, these must be confirmed with the owner:
 
 - `business.legalName`, `business.legalForm`
 - `business.kvk`, `business.btwId` — **these two fail the build** (a Dutch
@@ -153,7 +163,7 @@ The build refuses to run while the legally required fields are placeholders. In
 
 Also outstanding:
 
-- **Photography.** `src/assets/gallery/*.jpg` and `src/assets/hero.jpg` are
+- **Photography.** `web/src/assets/gallery/*.jpg` and `web/src/assets/hero.jpg` are
   generated placeholders. Drop the real photos in over those filenames; Astro
   generates AVIF and WebP from whatever is there.
 - **Allergens.** Every `allergens` array in `menu.json` is deliberately empty:
