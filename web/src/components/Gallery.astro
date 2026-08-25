@@ -3,9 +3,10 @@
  * Horizontal scroll-snap row on mobile, loose staggered grid on desktop.
  * Not a carousel: no arrows, no dots, no autoplay.
  *
- * The photo files live in src/assets/gallery so Astro can generate AVIF and
- * WebP for them; site.json still owns which photos appear and in what order,
- * matched on the filename in its `src` field.
+ * A photo is either uploaded in the studio, in which case `src` is an absolute
+ * cdn.sanity.io URL and goes straight to the build-time optimiser, or it lives
+ * in src/assets/gallery and `src` names the file. Content owns which photos
+ * appear and in what order either way.
  */
 import type { ImageMetadata } from 'astro';
 import Polaroid from './Polaroid.astro';
@@ -34,10 +35,15 @@ const byName = new Map(
 
 const resolved = items
 	.map((item) => {
-		const key = String(item.src).split('/').pop()!.replace(/\.[^.]+$/, '');
+		const src = String(item.src);
+
+		// Uploaded in the studio: hand the URL to Astro as-is.
+		if (/^https?:\/\//.test(src)) return { ...item, image: src };
+
+		const key = src.split('/').pop()!.replace(/\.[^.]+$/, '');
 		const image = byName.get(key);
 		if (!image) {
-			console.warn(`[gallery] no image file in src/assets/gallery for "${item.src}", skipping`);
+			console.warn(`[gallery] no image file in src/assets/gallery for "${src}", skipping`);
 		}
 		return image ? { ...item, image } : null;
 	})

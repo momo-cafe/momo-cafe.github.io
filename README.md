@@ -68,6 +68,18 @@ a rewrite.
 Read those values through `t(field, locale)` from `web/src/lib/t.js`. Nothing else
 may index a locale key directly - that function is the seam.
 
+### Photos
+
+Gallery photos are uploaded in the studio. The uploaded file is the source of
+truth: the build fetches it from `cdn.sanity.io`, cropped around whatever focal
+point was set with the crop tool, and Astro re-encodes it to AVIF and WebP like
+any bundled asset. Visitors are therefore served photos from momo-cafe.nl, and
+the built site does not depend on Sanity being reachable.
+
+`galleryItem.filename` is the fallback for the three photos that shipped in the
+repo before the studio existed. It only applies when nothing has been uploaded,
+so new photos never need it. A photo with neither is skipped with a warning.
+
 ### Sanity
 
 The same content also lives in Sanity (project `drw50awd`, dataset
@@ -164,8 +176,8 @@ The build refuses to run while the legally required fields are placeholders. In
 Also outstanding:
 
 - **Photography.** `web/src/assets/gallery/*.jpg` and `web/src/assets/hero.jpg` are
-  generated placeholders. Drop the real photos in over those filenames; Astro
-  generates AVIF and WebP from whatever is there.
+  generated placeholders. Gallery photos are best replaced by uploading them in
+  the studio (see [Photos](#photos)); the hero still comes from the repo.
 - **Allergens.** Every `allergens` array in `menu.json` is deliberately empty:
   the printed cards carry no allergen data, and guessing it is unsafe. The
   ask-at-the-bar notice satisfies the Dutch signposting requirement in the

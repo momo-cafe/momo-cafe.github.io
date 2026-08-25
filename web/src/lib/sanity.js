@@ -64,7 +64,13 @@ export const CONTENT_QUERY = `{
     status,
     about,
     practical,
-    gallery[]{ filename, alt, caption, "originalFilename": image.asset->originalFilename },
+    gallery[]{
+      filename,
+      alt,
+      caption,
+      image,
+      "originalFilename": image.asset->originalFilename
+    },
     footer,
     ui,
     privacy,
@@ -124,17 +130,44 @@ function paragraphs(value) {
 }
 
 /**
- * The value Gallery.astro matches against src/assets/gallery. It only uses the
- * basename without its extension, so "bar.jpg", "/img/bar.jpg" and "bar" are
- * all the same photo; the stored string is passed through untouched.
+ * The polaroid's aspect ratio, from Polaroid.astro. Sanity does the crop so the
+ * focal point set in the studio is respected; Astro then downscales and
+ * re-encodes, so this only has to be big enough not to be upscaled later.
  */
-function gallerySrc(item) {
+const GALLERY_CROP = { width: 1120, height: Math.round(1120 * 1.19) };
+
+/**
+ * Where Gallery.astro should get the photo.
+ *
+ * An uploaded photo wins and yields an absolute cdn.sanity.io URL, cropped
+ * around its focal point. Without one we fall back to a bare filename, which
+ * Gallery.astro matches against src/assets/gallery: it only uses the basename
+ * without its extension, so "bar.jpg", "/img/bar.jpg" and "bar" are all the
+ * same photo.
+ *
+ * @param item   one entry of the gallery array
+ * @param urlFor hotspot-aware URL builder, or null when unavailable
+ */
+function gallerySrc(item, urlFor) {
+	if (urlFor && item?.image?.asset?._ref) {
+		try {
+			return urlFor(item.image)
+				.width(GALLERY_CROP.width)
+				.height(GALLERY_CROP.height)
+				.fit('crop')
+				.auto('format')
+				.url();
+		} catch (error) {
+			// A malformed asset reference must not take the whole build down.
+			console.warn(`[content] could not build an image URL: ${error?.message ?? error}`);
+		}
+	}
 	return str(item?.filename || item?.originalFilename);
 }
 
 /* --------------------------------------------------------- normalise: site */
 
-export function normaliseSite(doc) {
+export function normaliseSite(doc, urlFor = null) {
 	if (!doc?.business) return null;
 
 	const business = doc.business ?? {};
@@ -197,12 +230,12 @@ export function normaliseSite(doc) {
 		practical: { items: (doc.practical ?? []).map(loc) },
 
 		gallery: (doc.gallery ?? [])
-			.filter((item) => gallerySrc(item))
 			.map((item) => ({
-				src: gallerySrc(item),
+				src: gallerySrc(item, urlFor),
 				alt: loc(item.alt),
 				caption: loc(item.caption),
-			})),
+			}))
+			.filter((item) => item.src),
 
 		footer: { credit: loc(doc.footer?.credit) },
 
@@ -296,6 +329,25 @@ async function createClient() {
 }
 
 /**
+ * The hotspot-aware image URL builder, or null when @sanity/image-url is not
+ * installed. Loaded through a variable specifier for the same reason as the
+ * client: a checkout without the dependency still builds, it just falls back to
+ * the photos committed under src/assets/gallery.
+ */
+async function createUrlBuilder() {
+	try {
+		const specifier = '@sanity/image-url';
+		// Named export: the default one is deprecated and warns on every build.
+		const { createImageUrlBuilder } = await import(/* @vite-ignore */ specifier);
+		const builder = createImageUrlBuilder({ projectId: PROJECT_ID, dataset: DATASET });
+		return (source) => builder.image(source);
+	} catch (error) {
+		console.warn(`[content] @sanity/image-url is not available: ${error?.message ?? error}`);
+		return null;
+	}
+}
+
+/**
  * Both documents, normalised, or null when Sanity cannot answer or the dataset
  * is still empty. Never throws.
  *
@@ -318,7 +370,8 @@ export async function fetchContent() {
 		return null;
 	}
 
-	const site = normaliseSite(data?.site);
+	const urlFor = await createUrlBuilder();
+	const site = normaliseSite(data?.site, urlFor);
 	const menu = normaliseMenu(data?.menu);
 
 	if (!site || !menu) {
