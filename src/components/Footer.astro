@@ -40,7 +40,12 @@ const phone = real(business.phone);
 ---
 
 <footer class="footer">
-	<Mascot class="footer__mascot" width="clamp(240px, 46vw, 460px)" />
+	{/* Wrapped in an element this component owns: a class passed down to a
+	    child component's root cannot be matched by this file's scoped
+	    selectors, so styling it from here would silently do nothing. */}
+	<div class="footer__mascot">
+		<Mascot width="var(--footer-mascot-w)" />
+	</div>
 	<div class="footer__rule" aria-hidden="true"></div>
 
 	<div class="footer__body u-page u-utility">
@@ -71,8 +76,20 @@ const phone = real(business.phone);
 
 <style define:vars={{ tableLine: MASCOT_TABLE_LINE, aspect: MASCOT_ASPECT }}>
 	.footer {
-		--mascot-h: calc(var(--mascot-w, 300px) * var(--aspect));
+		/*
+		 * One source of truth for the width. It used to be declared on the
+		 * mascot instead, so these calcs silently fell back to 300px while the
+		 * drawing rendered at 460px, and the rule landed 241px above her table
+		 * line. Named --footer-mascot-w rather than --mascot-w because the
+		 * Mascot component assigns the value it is passed to --mascot-w, and
+		 * --mascot-w: var(--mascot-w) is a circular reference.
+		 */
+		--footer-mascot-w: clamp(240px, 46vw, 460px);
+		--mascot-h: calc(var(--footer-mascot-w) * var(--aspect));
 		--line-y: calc(var(--mascot-h) * var(--tableLine));
+		/* The part of the drawing that hangs below her line: the bottom of the
+		   glass and her hand. The legal text clears it. */
+		--below-line: calc(var(--mascot-h) - var(--line-y));
 		position: relative;
 		background: var(--paper);
 		/* Reserve exactly the part of the drawing that sits above her line. */
@@ -82,11 +99,10 @@ const phone = real(business.phone);
 	}
 
 	.footer__mascot {
-		--mascot-w: clamp(240px, 46vw, 460px);
 		position: absolute;
 		top: 1.5rem;
 		left: 0;
-		width: var(--mascot-w);
+		width: var(--footer-mascot-w);
 	}
 
 	.footer__rule {
@@ -94,14 +110,15 @@ const phone = real(business.phone);
 		left: 0;
 		right: 0;
 		top: calc(1.5rem + var(--line-y));
-		height: max(2px, calc(var(--mascot-w, 300px) * 0.006));
+		/* Matched to the weight of her drawn line, which scales with her. */
+		height: max(2px, calc(var(--footer-mascot-w) * 0.006));
 		background: var(--ink);
 	}
 
 	.footer__body {
 		display: grid;
 		gap: 1.25rem 2.5rem;
-		padding-top: 1.75rem;
+		padding-top: calc(var(--below-line) + 1.25rem);
 	}
 
 	.footer__col p {
