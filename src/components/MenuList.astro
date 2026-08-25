@@ -1,8 +1,17 @@
 ---
 /**
  * The menu as real HTML text. No PDF, no photograph of a menu card.
+ *
  * The € appears once per section heading, never on a row: the price column is
  * tabular so it lines up, and a repeated currency symbol makes it wobble.
+ *
+ * Three shapes come out of the printed cards:
+ *   - items:      a name, an optional note, an optional add-on, a price
+ *   - groupPrice: one price against the whole section (sweets), with the
+ *                 choices listed beneath and no per-line price
+ *   - footnote:   real content that belongs to a section, not fine print
+ * Prices stay exactly as printed ("2,9", "3,9 / 4,5"): parsing them into
+ * numbers would render 2,90 and lose the second size.
  */
 import { t } from '../lib/t.js';
 
@@ -26,12 +35,14 @@ const codes = menu.allergenCodes ?? {};
 			<section class="menu__section" id={section.id} aria-labelledby={`heading-${section.id}`}>
 				<div class="menu__head">
 					<h3 id={`heading-${section.id}`}>{t(section.heading, locale)}</h3>
-					<span class="menu__euro u-num">€</span>
+					<span class="menu__euro u-num">
+						{section.groupPrice ? `€ ${section.groupPrice}` : '€'}
+					</span>
 				</div>
 				<hr class="u-hairline" />
 
 				<ul class="menu__items">
-					{section.items.map((item: any, index: number) => (
+					{(section.items ?? []).map((item: any, index: number) => (
 						<li class="row u-reveal" style={`--reveal-i:${index}`}>
 							<p class="row__name">
 								{item.highlight && <span class="row__dot" aria-hidden="true" />}
@@ -52,9 +63,19 @@ const codes = menu.allergenCodes ?? {};
 							</p>
 							<p class="row__price u-num">{item.price}</p>
 							{item.note && <p class="row__note">{t(item.note, locale)}</p>}
+							{item.addOn && <p class="row__note row__add">{t(item.addOn, locale)}</p>}
+						</li>
+					))}
+
+					{/* One price against the whole group: the choices carry no price. */}
+					{(section.options ?? []).map((option: any, index: number) => (
+						<li class="row row--option u-reveal" style={`--reveal-i:${index}`}>
+							<p class="row__name">{t(option, locale)}</p>
 						</li>
 					))}
 				</ul>
+
+				{section.footnote && <p class="menu__footnote">{t(section.footnote, locale)}</p>}
 			</section>
 		))
 	}
@@ -81,6 +102,7 @@ const codes = menu.allergenCodes ?? {};
 	.menu__euro {
 		font-size: var(--utility);
 		color: var(--glass-ink);
+		white-space: nowrap;
 	}
 
 	.menu__items {
@@ -89,9 +111,19 @@ const codes = menu.allergenCodes ?? {};
 		margin-top: 0.9rem;
 	}
 
+	.menu__footnote {
+		margin-top: 1rem;
+		font-size: var(--utility);
+		line-height: 1.5;
+		letter-spacing: 0.04em;
+		color: var(--glass-ink);
+		/* The card breaks this across two lines, and so does the JSON. */
+		white-space: pre-line;
+	}
+
 	.row {
 		display: grid;
-		grid-template-columns: 1fr auto;
+		grid-template-columns: minmax(0, 1fr) auto;
 		column-gap: 1.25rem;
 		align-items: baseline;
 	}
@@ -109,12 +141,18 @@ const codes = menu.allergenCodes ?? {};
 
 	.row__note {
 		grid-column: 1 / -1;
+		max-width: var(--measure);
 		font-size: var(--utility);
+		line-height: 1.45;
 		letter-spacing: 0.04em;
 		color: var(--glass-ink);
 	}
 
-	/* --zon, second and last appearance on the page: a highlight dot. */
+	.row__add {
+		color: var(--ink);
+	}
+
+	/* --zon, second and last appearance on a screen: a highlight dot. */
 	.row__dot {
 		display: inline-block;
 		width: 0.4rem;

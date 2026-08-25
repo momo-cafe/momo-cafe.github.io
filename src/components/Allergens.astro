@@ -15,8 +15,14 @@ interface Props {
 
 const { menu, ui, locale, id = 'allergenen' } = Astro.props;
 
+// Codes can hang off either shape a section comes in: priced items, or the
+// options under a single group price.
 const used = new Set<string>(
-	menu.sections.flatMap((section: any) => section.items.flatMap((item: any) => item.allergens ?? []))
+	menu.sections.flatMap((section: any) =>
+		[...(section.items ?? []), ...(section.options ?? [])].flatMap(
+			(entry: any) => entry.allergens ?? []
+		)
+	)
 );
 
 const codes = Object.entries(menu.allergenCodes ?? {}).filter(
@@ -26,16 +32,18 @@ const codes = Object.entries(menu.allergenCodes ?? {}).filter(
 
 <section class="allergens" id={id} aria-labelledby={`${id}-heading`}>
 	<h3 id={`${id}-heading`} class="allergens__heading">{t(ui.allergensHeading, locale)}</h3>
-	<dl class="allergens__list">
-		{
-			codes.map(([code, label]) => (
-				<div class="allergens__item" id={`${id}-${code}`}>
-					<dt class="u-num">{code.toLowerCase()}</dt>
-					<dd>{t(label, locale)}</dd>
-				</div>
-			))
-		}
-	</dl>
+	{
+		codes.length > 0 && (
+			<dl class="allergens__list">
+				{codes.map(([code, label]) => (
+					<div class="allergens__item" id={`${id}-${code}`}>
+						<dt class="u-num">{code.toLowerCase()}</dt>
+						<dd>{t(label, locale)}</dd>
+					</div>
+				))}
+			</dl>
+		)
+	}
 	<p class="allergens__notice u-measure">{t(menu.allergenNotice, locale)}</p>
 </section>
 

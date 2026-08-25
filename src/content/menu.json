@@ -1,20 +1,24 @@
 {
-  "_note": "ALL PRICES AND ITEMS BELOW ARE PLACEHOLDERS read partially from a photo of the menu card. Confirm every line with the owner before launch. Prices are strings so 3,60 renders correctly in Dutch without float rounding.",
+  "_source": "Transcribed verbatim from photographs of the printed cards, August 2026. Coffee and not-coffee exist in Dutch and English on the cards, so both columns are the café's own wording. The food card was only photographed in English: the nl values in the 'food' section are translations written for this file and must be approved by the owner before launch.",
+
+  "_prices": "Kept as strings exactly as printed on the card, comma decimal separator, no euro sign. Two values separated by ' / ' means two sizes. Do not convert to numbers: 2.9 would render as 2,90 and the card says 2,9.",
+
+  "_allergens": "The printed cards carry NO allergen information. Nothing has been inferred, because guessing allergens is unsafe. Every allergens array is empty until the owner supplies real per-item data from her recipes. Until then the 'ask us at the bar' notice below is what satisfies the Dutch signposting requirement.",
 
   "allergenCodes": {
-    "_note": "The 14 EU declarable allergens. Only list codes you actually use.",
     "G": { "nl": "gluten", "en": "gluten" },
-    "L": { "nl": "lactose / melk", "en": "lactose / milk" },
+    "L": { "nl": "melk","en": "milk" },
     "N": { "nl": "noten", "en": "nuts" },
     "P": { "nl": "pinda", "en": "peanut" },
     "E": { "nl": "ei", "en": "egg" },
     "S": { "nl": "soja", "en": "soy" },
-    "SE": { "nl": "sesam", "en": "sesame" }
+    "SE": { "nl": "sesam", "en": "sesame" },
+    "SU": { "nl": "sulfiet", "en": "sulphites" }
   },
 
   "allergenNotice": {
-    "nl": "Vraag ons gerust naar allergenen. We hebben de volledige informatie achter de bar en helpen je graag.",
-    "en": "Ask us about allergens any time. We keep the full information behind the bar and are happy to help."
+    "nl": "Vraag ons naar allergenen. We hebben de volledige informatie achter de bar.",
+    "en": "Ask us about allergens. We keep the full information behind the bar."
   },
 
   "orderNotice": {
@@ -26,66 +30,144 @@
     {
       "id": "koffie",
       "heading": { "nl": "koffie", "en": "coffee" },
+      "footnote": {
+        "nl": "haver- of kokosmelk, decaf en iced mogelijk\nextra shot +0,50",
+        "en": "oat or coconut milk, decaf and iced available\nextra shot +0,50"
+      },
       "items": [
-        { "name": { "nl": "espresso", "en": "espresso" }, "price": "2,80", "allergens": [] },
-        { "name": { "nl": "americano", "en": "americano" }, "price": "3,20", "allergens": [] },
-        { "name": { "nl": "cortado", "en": "cortado" }, "price": "3,30", "allergens": ["L"] },
-        { "name": { "nl": "flat white", "en": "flat white" }, "price": "3,90", "allergens": ["L"] },
-        { "name": { "nl": "cappuccino", "en": "cappuccino" }, "price": "3,60", "allergens": ["L"] },
-        { "name": { "nl": "latte", "en": "latte" }, "price": "3,90", "allergens": ["L"] },
-        { "name": { "nl": "iced latte", "en": "iced latte" }, "price": "4,20", "allergens": ["L"] }
+        { "name": { "nl": "espresso", "en": "espresso" }, "price": "2,9 / 3,9", "allergens": [] },
+        { "name": { "nl": "americano", "en": "americano" }, "price": "3,5", "allergens": [] },
+        { "name": { "nl": "filter v60", "en": "filter v60" }, "price": "5,5", "allergens": [] },
+        { "name": { "nl": "cortado", "en": "cortado" }, "price": "3,8", "allergens": [] },
+        { "name": { "nl": "flat white", "en": "flat white" }, "price": "4,4", "allergens": [] },
+        { "name": { "nl": "cappuccino", "en": "cappuccino" }, "price": "3,9 / 4,5", "allergens": [] },
+        { "name": { "nl": "latte", "en": "latte" }, "price": "4,5", "allergens": [] },
+        { "name": { "nl": "espresso tonic", "en": "espresso tonic" }, "price": "5,5", "allergens": [] },
+        { "name": { "nl": "dirty chai", "en": "dirty chai" }, "price": "4,9", "allergens": [] },
+        { "name": { "nl": "affogato", "en": "affogato" }, "price": "4,5", "allergens": [] },
+        { "name": { "nl": "iced spanish latte", "en": "iced spanish latte" }, "price": "4,9", "allergens": [] }
       ]
     },
     {
       "id": "niet-koffie",
       "heading": { "nl": "niet koffie", "en": "not coffee" },
       "items": [
-        { "name": { "nl": "matcha latte", "en": "matcha latte" }, "price": "4,50", "allergens": ["L"] },
-        { "name": { "nl": "iced matcha", "en": "iced matcha" }, "price": "4,70", "allergens": ["L"] },
         {
-          "name": { "nl": "vanille hojicha latte", "en": "vanilla hojicha latte" },
-          "price": "4,70",
-          "allergens": ["L"]
+          "name": { "nl": "iced matcha latte", "en": "iced matcha latte" },
+          "note": { "nl": "mango/aardbei +1", "en": "mango/strawberry +1" },
+          "price": "4,9",
+          "allergens": []
         },
-        { "name": { "nl": "warme chocolademelk", "en": "hot chocolate" }, "price": "3,80", "allergens": ["L", "S"] },
-        { "name": { "nl": "verse muntthee", "en": "fresh mint tea" }, "price": "3,20", "allergens": [] },
         {
-          "name": { "nl": "huisgemaakte limonade", "en": "homemade lemonade" },
-          "note": { "nl": "citroen of passievrucht", "en": "lemon or passionfruit" },
-          "price": "3,50",
+          "name": { "nl": "iced matcha coconut cloud", "en": "iced matcha coconut cloud" },
+          "price": "5,7",
+          "allergens": []
+        },
+        { "name": { "nl": "matcha affogato", "en": "matcha affogato" }, "price": "5,7", "allergens": [] },
+        { "name": { "nl": "hojicha latte", "en": "hojicha latte" }, "price": "5,3", "allergens": [] },
+        {
+          "name": {
+            "nl": "iced earl grey vanilla hojicha latte",
+            "en": "iced earl grey vanilla hojicha latte"
+          },
+          "price": "5,7",
+          "allergens": []
+        },
+        { "name": { "nl": "chai latte", "en": "chai latte" }, "price": "4,5", "allergens": [] },
+        { "name": { "nl": "gember of munt thee", "en": "ginger or mint tea" }, "price": "3,5", "allergens": [] },
+        { "name": { "nl": "kombucha", "en": "kombucha" }, "price": "5,5", "allergens": [] },
+        {
+          "name": {
+            "nl": "homemade lemonade citroen gember of passievrucht",
+            "en": "homemade lemonade lemon ginger or passionfruit"
+          },
+          "price": "4,9",
+          "allergens": []
+        },
+        { "name": { "nl": "kokoswater", "en": "coconut water" }, "price": "4,2", "allergens": [] }
+      ]
+    },
+    {
+      "id": "food",
+      "heading": { "nl": "food", "en": "food" },
+      "items": [
+        {
+          "name": { "nl": "granola bowl", "en": "granola bowl" },
+          "note": {
+            "nl": "kokosyoghurt of Griekse yoghurt, huisgemaakte granola, seizoensfruit",
+            "en": "coconut yoghurt or greek yoghurt, homemade granola, seasonal fruits"
+          },
+          "price": "9",
+          "allergens": []
+        },
+        {
+          "name": { "nl": "coconut chia pudding", "en": "coconut chia pudding" },
+          "note": {
+            "nl": "mango, geroosterde cashewnoten, maple syrup",
+            "en": "mango, roasted cashews, maple syrup"
+          },
+          "price": "9,5",
+          "allergens": []
+        },
+        {
+          "name": { "nl": "toasted banana bread", "en": "toasted banana bread" },
+          "note": {
+            "nl": "mascarpone, keuze uit lemon curd of blueberry compote",
+            "en": "mascarpone, choose lemon curd or blueberry compote"
+          },
+          "price": "8",
+          "allergens": []
+        },
+        {
+          "name": { "nl": "scandinavian breakfast", "en": "scandinavian breakfast" },
+          "note": {
+            "nl": "zuurdesembrood, whipped butter, jam, kaas, gekookt ei",
+            "en": "sourdough bread, whipped butter, jam, cheese, cooked egg"
+          },
+          "price": "10,5",
+          "allergens": []
+        },
+        {
+          "name": { "nl": "grilled cheese sandwich", "en": "grilled cheese sandwich" },
+          "note": {
+            "nl": "zuurdesembrood, sriracha mayo apart",
+            "en": "sourdough bread, sriracha mayo on the side"
+          },
+          "addOn": { "nl": "maak er een tuna melt van +2", "en": "make it a tuna melt +2" },
+          "price": "9",
+          "allergens": []
+        },
+        {
+          "name": { "nl": "kimchi grilled cheese sandwich", "en": "kimchi grilled cheese sandwich" },
+          "note": {
+            "nl": "zuurdesembrood, kimchi, sriracha mayo apart",
+            "en": "sourdough bread, kimchi, sriracha mayo on the side"
+          },
+          "price": "9,5",
+          "allergens": []
+        },
+        {
+          "name": { "nl": "mozzarella di bufala sandwich", "en": "mozzarella di bufala sandwich" },
+          "note": { "nl": "pesto, mozzarella, tomaten", "en": "pesto, mozzarella, tomatoes" },
+          "price": "12",
           "allergens": []
         }
       ]
     },
     {
-      "id": "lekkers",
-      "heading": { "nl": "lekkers", "en": "something good" },
-      "items": [
+      "id": "sweets",
+      "heading": { "nl": "sweets", "en": "sweets" },
+      "_note": "On the card a single price of 4,9 sits against the whole group, not against individual lines. Rendered as one price for the section with the options listed beneath.",
+      "groupPrice": "4,9",
+      "options": [
+        { "nl": "banana bread", "en": "banana bread", "allergens": [] },
+        { "nl": "lemon cake", "en": "lemon cake", "allergens": [] },
         {
-          "name": { "nl": "pistache cookie", "en": "pistachio cookie" },
-          "price": "3,50",
-          "allergens": ["G", "L", "N", "E"],
-          "highlight": true
-        },
-        {
-          "name": { "nl": "carrot cake", "en": "carrot cake" },
-          "note": { "nl": "met roomkaas", "en": "with cream cheese" },
-          "price": "4,50",
-          "allergens": ["G", "L", "E", "N"]
-        },
-        { "name": { "nl": "banana bread", "en": "banana bread" }, "price": "4,00", "allergens": ["G", "L", "E"] }
-      ]
-    },
-    {
-      "id": "ontbijt-lunch",
-      "heading": { "nl": "ontbijt & lunch", "en": "breakfast & lunch" },
-      "items": [
-        {
-          "name": { "nl": "PLACEHOLDER", "en": "PLACEHOLDER" },
-          "note": { "nl": "vraag de eigenaar om de kaart", "en": "get the card from the owner" },
-          "price": "0,00",
+          "nl": "pistache white chocolate of triple chocolate chip cookie",
+          "en": "pistache white chocolate or triple chocolate chip cookie",
           "allergens": []
-        }
+        },
+        { "nl": "cardamom bun", "en": "cardamom bun", "allergens": [] }
       ]
     }
   ]
