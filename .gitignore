@@ -15,7 +15,9 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.local
 .env.production
+# .env.example is committed on purpose: it documents the variables.
 
 # macOS-specific files
 .DS_Store
