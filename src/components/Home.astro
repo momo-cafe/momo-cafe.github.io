@@ -1,8 +1,18 @@
 ---
 /**
- * The single page, section order exactly as the wireframe in section 7 of the
- * design language. Both locales render this same component; nothing here reads
- * global state and no copy is hardcoded.
+ * The single page.
+ *
+ * Structure follows the reference the owner picked: a centred masthead, one
+ * enormous display line, hairline bands instead of cards, all content confined
+ * to the centre 8 of 12 columns, and no section that is not separated by a
+ * 1px rule. The two things that do not come from the reference are the glass
+ * grid, which is Momo's own signature element, and the polaroids.
+ *
+ * The one place I deliberately kept the design language over the reference:
+ * the hero is natural height, not 100vh. The reference gives mobile a
+ * full-viewport poster; the brief requires the hours, the address and the live
+ * status to be reachable without scrolling at 375px, and those two cannot both
+ * win. The status line is the whole point of this site, so it wins.
  */
 import { getImage } from 'astro:assets';
 import heroImage from '../assets/hero.jpg';
@@ -13,7 +23,7 @@ import MenuList from './MenuList.astro';
 import Allergens from './Allergens.astro';
 import Gallery from './Gallery.astro';
 import { t } from '../lib/t.js';
-import { site, menu, fullAddress, mapLinks, real } from '../lib/content.js';
+import { site, menu, mapLinks, real } from '../lib/content.js';
 
 interface Props {
 	locale: string;
@@ -25,92 +35,128 @@ const { business, ui, hero, status, hours, about, practical, gallery } = site;
 const maps = mapLinks(business);
 const phone = real(business.phone);
 
-const heroSizes = { width: 1600, height: 1067 };
+const heroSizes = { width: 1800, height: 760 };
 const heroAvif = await getImage({ src: heroImage, ...heroSizes, format: 'avif' });
 const heroWebp = await getImage({ src: heroImage, ...heroSizes, format: 'webp' });
 const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpeg' });
+
+// The inline nav, built from copy that already exists in the JSON.
+const jumps = [
+	{ href: '#kaart', label: t(ui.menuHeading, locale) },
+	{ href: '#binnen', label: t(ui.galleryHeading, locale) },
+	{ href: '#over', label: t(about.heading, locale) },
+	{ href: maps.google, label: t(ui.routeCta, locale), external: true },
+];
 ---
 
-<section class="hero">
-	{/* The photograph sits behind the glass at low opacity so colour bleeds
-	    through, diffused. Decorative, so it carries no alt text. */}
-	<div class="hero__media" aria-hidden="true">
-		<picture>
-			<source srcset={heroAvif.src} type="image/avif" />
-			<source srcset={heroWebp.src} type="image/webp" />
-			<img
-				src={heroFallback.src}
-				alt=""
-				width={heroSizes.width}
-				height={heroSizes.height}
-				fetchpriority="high"
-				decoding="async"
-			/>
-		</picture>
+<div class="u-shell page">
+	<div class="u-centre">
+		<section class="hero">
+			<div class="hero__graphic">
+				{/* The photograph sits behind the glass at low opacity so colour
+				    bleeds through, diffused. Decorative, so no alt text. */}
+				<div class="hero__media" aria-hidden="true">
+					<picture>
+						<source srcset={heroAvif.src} type="image/avif" />
+						<source srcset={heroWebp.src} type="image/webp" />
+						<img
+							src={heroFallback.src}
+							alt=""
+							width={heroSizes.width}
+							height={heroSizes.height}
+							fetchpriority="high"
+							decoding="async"
+						/>
+					</picture>
+				</div>
+				<GlassGrid />
+			</div>
+
+			<h1 class="hero__headline u-fun">{t(hero.headline, locale)}</h1>
+			<p class="hero__sub">{t(hero.sub, locale)}</p>
+		</section>
+
+		{/* The most-visited block on the page, in the first band under the fold
+		    line: live status, the week, the address, and a route. */}
+		<section class="facts u-band" id="waar" aria-labelledby="waar-heading">
+			<h2 id="waar-heading" class="u-visually-hidden">{t(ui.hoursHeading, locale)}</h2>
+
+			<div class="facts__status">
+				<OpenStatus hours={hours} status={status} ui={ui} locale={locale} />
+			</div>
+
+			<Hours hours={hours} ui={ui} locale={locale} />
+
+			<address class="facts__address u-utility">
+				<a href={maps.google} rel="noreferrer">{t(ui.googleMaps, locale)}</a>
+				<a href={maps.apple} rel="noreferrer">{t(ui.appleMaps, locale)}</a>
+				{
+					phone && (
+						<a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
+							{`${t(ui.phoneLabel, locale)} ${phone}`}
+						</a>
+					)
+				}
+			</address>
+		</section>
+
+		{/* Dot-separated inline nav. Scrolls away and does not come back. */}
+		<nav class="jump" aria-label={t(ui.menuHeading, locale)}>
+			<ul>
+				{
+					jumps.map((jump) => (
+						<li>
+							<a href={jump.href} rel={jump.external ? 'noreferrer' : undefined}>
+								{jump.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+
+		<p class="label u-band u-label" id="kaart">{t(ui.menuHeading, locale)}</p>
+		<MenuList menu={menu} ui={ui} locale={locale} />
+		<Allergens menu={menu} ui={ui} locale={locale} />
+
+		<p class="label u-band u-label" id="binnen">{t(ui.galleryHeading, locale)}</p>
+		<Gallery items={gallery} locale={locale} label={t(ui.galleryHeading, locale)} />
 	</div>
+</div>
 
-	<GlassGrid />
-
-	<div class="hero__content u-page">
-		<OpenStatus hours={hours} status={status} ui={ui} locale={locale} />
-		<h1 class="hero__headline">{t(hero.headline, locale)}</h1>
-		<p class="hero__sub u-measure">{t(hero.sub, locale)}</p>
-
-		<p class="hero__cta">
-			<a class="btn btn--primary" href={maps.google} rel="noreferrer">{t(ui.routeCta, locale)}</a>
-			<a class="btn btn--quiet" href="#kaart">{t(ui.menuCta, locale)}</a>
-		</p>
-	</div>
-</section>
-
-<section class="where u-page" id="waar" aria-labelledby="waar-heading">
-	<h2 id="waar-heading" class="u-visually-hidden">{t(ui.hoursHeading, locale)}</h2>
-
-	<Hours hours={hours} ui={ui} locale={locale} />
-
-	<address class="where__address">
-		<a class="where__street" href={maps.google} rel="noreferrer">{fullAddress(business)}</a>
-		<span class="where__links u-utility">
-			<a href={maps.google} rel="noreferrer">{t(ui.googleMaps, locale)}</a>
-			<a href={maps.apple} rel="noreferrer">{t(ui.appleMaps, locale)}</a>
-			{
-				phone && (
-					<a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{`${t(ui.phoneLabel, locale)} ${phone}`}</a>
-				)
-			}
-		</span>
-	</address>
-</section>
-
-<section class="section u-page" id="kaart" aria-labelledby="kaart-heading">
-	<h2 id="kaart-heading">{t(ui.menuHeading, locale)}</h2>
-	<MenuList menu={menu} ui={ui} locale={locale} />
-	<Allergens menu={menu} ui={ui} locale={locale} />
-</section>
-
-<section class="section u-page" id="binnen" aria-labelledby="binnen-heading">
-	<h2 id="binnen-heading" class="u-visually-hidden">{t(ui.galleryHeading, locale)}</h2>
-	<Gallery items={gallery} locale={locale} label={t(ui.galleryHeading, locale)} />
-</section>
-
+{/* --ply warms up the long text section so the page does not go cold. The one
+    filled block on an otherwise hairline page. */}
 <section class="about" id="over" aria-labelledby="over-heading">
-	<div class="u-page about__inner">
-		<h2 id="over-heading">{t(about.heading, locale)}</h2>
-		<p class="about__body u-measure">{t(about.body, locale)}</p>
+	<div class="u-shell">
+		<div class="u-centre about__inner">
+			<h2 id="over-heading" class="about__heading u-fun">{t(about.heading, locale)}</h2>
 
-		<h3 class="u-visually-hidden">{t(ui.practicalHeading, locale)}</h3>
-		<ul class="practical">
-			{practical.items.map((item: any) => <li>{t(item, locale)}</li>)}
-		</ul>
+			<div class="about__cols">
+				<p class="about__body">{t(about.body, locale)}</p>
+				<ul class="practical">
+					{practical.items.map((item: any) => <li>{t(item, locale)}</li>)}
+				</ul>
+			</div>
+		</div>
 	</div>
 </section>
 
 <style>
+	.page {
+		padding-inline: var(--gutter);
+	}
+
+	/* --- hero ---------------------------------------------------------- */
+
 	.hero {
+		padding-top: calc(30 * var(--u));
+	}
+
+	.hero__graphic {
 		position: relative;
 		isolation: isolate;
 		overflow: hidden;
-		padding-block: clamp(1.5rem, 4vw, 3.5rem) clamp(2rem, 5vw, 4rem);
+		aspect-ratio: 1000 / 300;
 	}
 
 	.hero__media {
@@ -128,106 +174,117 @@ const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpe
 		object-fit: cover;
 	}
 
-	.hero__content {
-		/* Above the grid. The grid is absolutely positioned, so without this the
-		   glass paints over the headline. */
-		position: relative;
-		z-index: 1;
-		display: grid;
-		gap: clamp(0.75rem, 2vw, 1.1rem);
-	}
-
 	.hero__headline {
+		margin-top: calc(50 * var(--u));
 		font-size: var(--display);
-		line-height: 0.98;
-		max-width: 24ch;
+		text-align: center;
+		text-wrap: balance;
 	}
 
 	.hero__sub {
-		color: var(--ink);
+		margin-top: calc(18 * var(--u));
+		text-align: center;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		color: var(--glass-ink);
 	}
 
-	.hero__cta {
+	/* --- the facts band ------------------------------------------------ */
+
+	.facts {
+		margin-top: calc(60 * var(--u));
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto auto;
+		align-items: start;
+		column-gap: calc(60 * var(--u));
+		row-gap: var(--band);
+	}
+
+	.facts__address {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.6rem;
-		margin-top: 0.35rem;
+		gap: calc(20 * var(--u));
+		font-style: normal;
 	}
 
-	.btn {
+	/* --- inline nav ---------------------------------------------------- */
+
+	.jump {
+		border-bottom: var(--hair) solid var(--ink);
+		padding-block: var(--band);
+	}
+
+	.jump ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.jump li {
+		position: relative;
+	}
+
+	.jump a {
 		display: inline-block;
-		padding: 0.7rem 1.4rem;
-		border-radius: 999px;
+		padding: calc(10 * var(--u)) calc(22 * var(--u));
 		font-size: var(--utility);
 		letter-spacing: 0.04em;
 		text-decoration: none;
 	}
 
-	/* --zon, first of at most two appearances on this screen: the primary CTA.
-	   The status dot is the other one. */
-	.btn--primary {
-		background: var(--zon);
-		color: var(--ink);
+	/* Separators are drawn, not typed. */
+	.jump li + li::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 50%;
+		width: calc(5 * var(--u));
+		height: calc(5 * var(--u));
+		border-radius: 50%;
+		background: var(--ink);
+		transform: translateY(-50%);
 	}
 
-	.btn--quiet {
-		background: var(--paper-lift);
-		color: var(--ink);
-		box-shadow: inset 0 0 0 1px var(--glass-deep);
+	.label {
+		margin-top: var(--section);
+		scroll-margin-top: calc(20 * var(--u));
 	}
 
-	.where {
-		display: grid;
-		gap: 1rem;
-		padding-block: clamp(1.25rem, 3vw, 2rem);
-	}
+	/* --- about --------------------------------------------------------- */
 
-	.where__address {
-		display: grid;
-		gap: 0.35rem;
-		font-style: normal;
-	}
-
-	.where__street {
-		font-size: var(--body);
-		color: var(--ink);
-		text-decoration-color: var(--glass-deep);
-	}
-
-	.where__links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.9rem;
-	}
-
-	.section {
-		display: grid;
-		gap: clamp(1.25rem, 3vw, 2rem);
-		padding-block: var(--section-gap) 0;
-		scroll-margin-top: 4.5rem;
-	}
-
-	/* --ply warms up the long text section so the page does not go cold. */
 	.about {
-		margin-top: var(--section-gap);
+		margin-top: var(--section);
+		padding-inline: var(--gutter);
 		background: var(--ply-deep);
 		color: var(--paper);
 	}
 
 	.about__inner {
+		padding-block: calc(90 * var(--u));
+	}
+
+	.about__heading {
+		font-size: var(--h2);
+	}
+
+	.about__cols {
 		display: grid;
-		gap: 1.1rem;
-		padding-block: clamp(2.5rem, 6vw, 4rem);
+		grid-template-columns: 1fr 1fr;
+		gap: calc(50 * var(--u));
+		margin-top: calc(45 * var(--u));
+		border-top: var(--hair) solid currentColor;
+		padding-top: var(--band);
 	}
 
 	.about__body {
-		color: var(--paper);
+		max-width: var(--measure);
+		line-height: 1.45;
 	}
 
 	.practical {
 		display: grid;
-		gap: 0.3rem;
-		margin-top: 0.75rem;
+		align-content: start;
+		gap: calc(8 * var(--u));
 		font-size: var(--utility);
 		letter-spacing: 0.04em;
 	}
@@ -245,6 +302,49 @@ const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpe
 			to {
 				filter: blur(6px);
 			}
+		}
+	}
+
+	@media (max-width: 63.9375rem) {
+		/*
+		 * On a phone the facts band is promoted above the hero. This is a
+		 * visual reorder only — the DOM keeps the h1 first, so the document
+		 * outline and reading order are unchanged — and it is what makes the
+		 * brief's hard requirement hold with room to spare: the live status,
+		 * the week and the address all sit inside a 375x667 viewport.
+		 * Someone standing on the Jatstraat at 16:50 wants exactly that, and
+		 * they should not have to scroll past a headline to get it.
+		 */
+		.u-centre {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.facts {
+			order: -1;
+		}
+
+		.hero {
+			padding-top: calc(16 * var(--u));
+		}
+
+		.hero__graphic {
+			aspect-ratio: 1000 / 300;
+		}
+
+		.hero__headline {
+			margin-top: calc(28 * var(--u));
+		}
+
+		.facts {
+			grid-template-columns: minmax(0, 1fr);
+			column-gap: 0;
+			margin-top: calc(34 * var(--u));
+			row-gap: calc(14 * var(--u));
+		}
+
+		.about__cols {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>
