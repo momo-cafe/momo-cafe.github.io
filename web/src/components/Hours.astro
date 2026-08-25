@@ -31,17 +31,34 @@ const groups = groupedHours(hours);
 </dl>
 
 <style>
+	/* The day column is sized to its content, not to a fixed width: the type
+	   scales with the viewport (--utility is derived from --u, which is 100vw
+	   based) so any fixed rem column is outgrown somewhere between the mobile
+	   breakpoint and desktop. "ma-vr" then breaks at its hyphen, which is a
+	   legal break point, and a day range reads as two lines of nonsense. */
 	.hours {
 		display: grid;
-		gap: 0.15rem;
+		grid-template-columns: max-content auto;
+		gap: 0.15rem 0.75rem;
 		font-size: var(--utility);
 		color: var(--glass-ink);
 	}
 
+	/* Rows stay real elements for the is-today marker, but borrow the parent's
+	   columns so every row lines up. */
 	.hours__row {
 		display: grid;
-		grid-template-columns: 4.5rem auto;
+		/* Fallback first: without subgrid each row sizes its own columns, which
+		   still never wraps, it just stops guaranteeing cross-row alignment. */
+		grid-template-columns: max-content auto;
 		gap: 0.75rem;
+		grid-template-columns: subgrid;
+		grid-column: 1 / -1;
+	}
+
+	.hours__row dt {
+		/* Belt and braces: never break a day range across lines. */
+		white-space: nowrap;
 	}
 
 	.hours__row dd {
