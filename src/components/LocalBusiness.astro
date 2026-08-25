@@ -1,0 +1,68 @@
+---
+/**
+ * LocalBusiness JSON-LD. This is what makes the opening hours show up correctly
+ * in Google, which for this café is most of the value of the whole site.
+ */
+import { groupedHours, SCHEMA_DAYS } from '../lib/hours.js';
+import { t } from '../lib/t.js';
+import { real, fullAddress } from '../lib/content.js';
+
+interface Props {
+	site: Record<string, any>;
+	locale: string;
+	url: string;
+}
+
+const { site, locale, url } = Astro.props;
+const { business, hours, meta } = site;
+
+const openingHoursSpecification = groupedHours(hours).flatMap((group) =>
+	group.ranges.map(([opens, closes]: [string, string]) => ({
+		'@type': 'OpeningHoursSpecification',
+		dayOfWeek: group.days.map((day: string) => SCHEMA_DAYS[day]),
+		opens,
+		closes,
+	}))
+);
+
+const specialOpeningHoursSpecification = (hours.exceptions ?? []).map((exception: any) => ({
+	'@type': 'OpeningHoursSpecification',
+	validFrom: exception.date,
+	validThrough: exception.date,
+	...(exception.hours?.length
+		? { opens: exception.hours[0][0], closes: exception.hours[0][1] }
+		: { opens: '00:00', closes: '00:00' }),
+}));
+
+const schema = {
+	'@context': 'https://schema.org',
+	'@type': 'CafeOrCoffeeShop',
+	name: business.name,
+	description: t(meta.description, locale),
+	url,
+	image: new URL('/apple-touch-icon.png', Astro.site).href,
+	address: {
+		'@type': 'PostalAddress',
+		streetAddress: business.street,
+		postalCode: business.postcode,
+		addressLocality: business.city,
+		addressCountry: business.country,
+	},
+	geo: {
+		'@type': 'GeoCoordinates',
+		latitude: business.coordinates.lat,
+		longitude: business.coordinates.lng,
+	},
+	openingHoursSpecification,
+	...(specialOpeningHoursSpecification.length ? { specialOpeningHoursSpecification } : {}),
+	sameAs: [business.instagram],
+	servesCuisine: 'Coffee',
+	...(real(business.email) ? { email: real(business.email) } : {}),
+	...(real(business.phone) ? { telephone: real(business.phone) } : {}),
+	...(real(business.legalName) ? { legalName: real(business.legalName) } : {}),
+	...(real(business.kvk) ? { identifier: business.kvk } : {}),
+	...(real(business.btwId) ? { vatID: business.btwId } : {}),
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} is:inline />

@@ -1,0 +1,134 @@
+---
+/**
+ * Her table line becomes the footer's top rule, extended the full width of the
+ * viewport. Below it: everything a Dutch commercial website is required to
+ * carry, at utility size.
+ *
+ * The KVK number and btw-id are a legal requirement, so this component refuses
+ * to build without them. Before launch they are still PLACEHOLDER in site.json,
+ * which is exactly the situation the guard exists for; set
+ * MOMO_ALLOW_PLACEHOLDERS=1 to build a pre-launch preview anyway, and remove it
+ * from the workflow the day the real numbers land.
+ */
+import Mascot from './Mascot.astro';
+import { MASCOT_TABLE_LINE, MASCOT_ASPECT } from '../lib/mascot.js';
+import { t, localePath } from '../lib/t.js';
+import { isPlaceholder, real, fullAddress, mapLinks } from '../lib/content.js';
+
+interface Props {
+	site: Record<string, any>;
+	locale: string;
+}
+
+const { site, locale } = Astro.props;
+const { business, ui, footer } = site;
+
+const missing = ['kvk', 'btwId'].filter((key) => isPlaceholder(business[key]));
+if (missing.length > 0 && process.env.MOMO_ALLOW_PLACEHOLDERS !== '1') {
+	throw new Error(
+		`Café Momo footer: ${missing
+			.map((key) => `business.${key}`)
+			.join(' and ')} in src/content/site.json still contains PLACEHOLDER. ` +
+			`A Dutch commercial website must show its KVK number and btw-id, so this build is refused. ` +
+			`Fill them in, or set MOMO_ALLOW_PLACEHOLDERS=1 for a pre-launch preview.`
+	);
+}
+
+const maps = mapLinks(business);
+const email = real(business.email);
+const phone = real(business.phone);
+---
+
+<footer class="footer">
+	<Mascot class="footer__mascot" width="clamp(240px, 46vw, 460px)" />
+	<div class="footer__rule" aria-hidden="true"></div>
+
+	<div class="footer__body u-page u-utility">
+		<div class="footer__col">
+			<p>{business.legalName}</p>
+			<p>{business.legalForm}</p>
+			<p>
+				<a href={maps.google} rel="noreferrer">{fullAddress(business)}</a>
+			</p>
+			{email && <p><a href={`mailto:${email}`}>{email}</a></p>}
+			{phone && <p><a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>{phone}</a></p>}
+		</div>
+
+		<div class="footer__col">
+			<p class="u-num">{t(ui.kvkLabel, locale)} {business.kvk}</p>
+			<p class="u-num">{t(ui.btwLabel, locale)} {business.btwId}</p>
+			<p>
+				<a href={localePath(locale, 'privacy')}>{t(ui.privacyLink, locale)}</a>
+			</p>
+			<p>
+				<a href={business.instagram} rel="noreferrer">{t(ui.instagram, locale)}</a>
+			</p>
+		</div>
+
+		<p class="footer__credit">{t(footer.credit, locale)}</p>
+	</div>
+</footer>
+
+<style define:vars={{ tableLine: MASCOT_TABLE_LINE, aspect: MASCOT_ASPECT }}>
+	.footer {
+		--mascot-h: calc(var(--mascot-w, 300px) * var(--aspect));
+		--line-y: calc(var(--mascot-h) * var(--tableLine));
+		position: relative;
+		background: var(--paper);
+		/* Reserve exactly the part of the drawing that sits above her line. */
+		padding-top: calc(var(--line-y) + 1.5rem);
+		padding-bottom: 2.5rem;
+		overflow: hidden;
+	}
+
+	.footer__mascot {
+		--mascot-w: clamp(240px, 46vw, 460px);
+		position: absolute;
+		top: 1.5rem;
+		left: 0;
+		width: var(--mascot-w);
+	}
+
+	.footer__rule {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: calc(1.5rem + var(--line-y));
+		height: max(2px, calc(var(--mascot-w, 300px) * 0.006));
+		background: var(--ink);
+	}
+
+	.footer__body {
+		display: grid;
+		gap: 1.25rem 2.5rem;
+		padding-top: 1.75rem;
+	}
+
+	.footer__col p {
+		margin: 0;
+	}
+
+	.footer__col a {
+		color: var(--glass-ink);
+	}
+
+	.footer__col a:hover {
+		color: var(--ink);
+	}
+
+	.footer__credit {
+		margin: 0;
+		color: var(--glass);
+	}
+
+	@media (min-width: 40rem) {
+		.footer__body {
+			grid-template-columns: 1fr 1fr;
+			align-items: start;
+		}
+
+		.footer__credit {
+			grid-column: 1 / -1;
+		}
+	}
+</style>
