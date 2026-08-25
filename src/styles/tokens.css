@@ -73,20 +73,48 @@
 	--metal: linear-gradient(150deg, #fff 0%, #c6cbcf 38%, #8e969c 62%, #e4e7e9 100%);
 	--metal-hover: linear-gradient(170deg, #fff 0%, #c6cbcf 38%, #8e969c 62%, #e4e7e9 100%);
 
+	/*
+	 * --- the spacing engine
+	 *
+	 * Every length on the page is calc(N * var(--u)), where N is the value at a
+	 * 1920 reference width. The whole layout is therefore one design that
+	 * scales, rather than a set of breakpoint-specific sizes: proportions are
+	 * identical at every window width. --vp swaps to 430 below 1024px, which is
+	 * where the mobile design takes over.
+	 *
+	 * The one deliberate divergence from the reference: --u stops growing past
+	 * 2200px. Uncapped, a 32-inch display gets 40% larger everything, which
+	 * reads as a zoomed page rather than a designed one.
+	 */
+	--vp: 1920;
+	--u: calc(1 / var(--vp) * min(100vw, 2200px));
+
 	/* --- type */
 	--font: 'General Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-	/* Accent only. Never body copy, never a whole heading hierarchy. */
+	/*
+	 * The funny face. Used at exactly one size, for the four display moments:
+	 * the hero line and the three section headings. Never body copy, never
+	 * interface text, never small.
+	 */
 	--font-fun: 'Darumadrop One', 'General Sans', ui-rounded, system-ui, sans-serif;
-	--display: clamp(2.75rem, 1.6rem + 5.2vw, 4.5rem);
-	--h2: clamp(1.75rem, 1.3rem + 2.1vw, 2.5rem);
-	--body: clamp(1.0625rem, 1.03rem + 0.2vw, 1.125rem);
-	--utility: 0.8125rem;
 
-	/* --- rhythm */
+	/*
+	 * Two tiers, ~5x apart, with nothing in between. Refusing to build a middle
+	 * step is the type scale: everything informational is small, and the four
+	 * display moments are enormous.
+	 */
+	--display: calc(104 * var(--u));
+	--h2: calc(76 * var(--u));
+	--body: calc(23 * var(--u));
+	--utility: calc(18 * var(--u));
+
+	/* --- rhythm. Three tiers: inside a band, between sections, and the void. */
+	--gutter: calc(20 * var(--u));
+	--band: calc(25 * var(--u));
+	--section: calc(100 * var(--u));
+	--void: calc(200 * var(--u));
 	--measure: 62ch;
-	--gutter: clamp(1.25rem, 4vw, 2.5rem);
-	--page: 68rem;
-	--section-gap: clamp(3rem, 7vw, 5.5rem);
+	--hair: 1px;
 
 	/* --- glass grid */
 	--cell: 64px;
@@ -95,6 +123,23 @@
 	/* --- motion (section 6: three moments, then stop) */
 	--spring: cubic-bezier(0.22, 1.16, 0.36, 1);
 	--ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/*
+ * Below 1024px the mobile design takes over: the reference unit becomes the
+ * mobile artboard width, and the display sizes step down so they do not
+ * outgrow a phone.
+ */
+@media (max-width: 63.9375rem) {
+	:root {
+		--vp: 430;
+		--u: calc(1 / var(--vp) * 100vw);
+		--display: calc(74 * var(--u));
+		--h2: calc(58 * var(--u));
+		--body: calc(19 * var(--u));
+		--utility: calc(15 * var(--u));
+		--gutter: calc(25 * var(--u));
+	}
 }
 
 @media (min-width: 48rem) {
@@ -184,13 +229,61 @@ a {
 
 .u-page {
 	width: 100%;
-	max-width: var(--page);
 	margin-inline: auto;
 	padding-inline: var(--gutter);
 }
 
-.u-measure {
-	max-width: var(--measure);
+/*
+ * The shell: a 2 / 8 / 2 grid, with everything the visitor reads confined to
+ * the centre 8 columns. The outer rails carry the address and the language
+ * toggle at the very top and then stay empty for the rest of the page. The
+ * emptiness is the composition — it reads as a printed page with margins.
+ */
+.u-shell {
+	display: grid;
+	/*
+	 * minmax(0, …) rather than bare fr: an fr track's automatic minimum is
+	 * min-content, so one wide child — the horizontally scrolling gallery —
+	 * stretched the whole track past the viewport and took the page with it.
+	 */
+	grid-template-columns: minmax(0, 2fr) minmax(0, 8fr) minmax(0, 2fr);
+	column-gap: calc(10 * var(--u));
+	align-items: start;
+}
+
+.u-shell > .u-centre {
+	grid-column: 2;
+}
+
+@media (max-width: 63.9375rem) {
+	.u-shell {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.u-shell > .u-centre,
+	.u-shell > * {
+		grid-column: 1;
+	}
+}
+
+/* Divisions are hairlines, never boxes, cards or fills. */
+.u-band {
+	border-block: var(--hair) solid var(--ink);
+	padding-block: var(--band);
+}
+
+.u-label {
+	margin: 0;
+	font-size: var(--utility);
+	letter-spacing: 0.04em;
+	color: var(--ink);
+}
+
+.u-fun {
+	font-family: var(--font-fun);
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: 0.92;
 }
 
 /* Section 3, role three: anything that lines up gets tabular numerals. */
@@ -204,6 +297,10 @@ a {
 	line-height: 1.4;
 	letter-spacing: 0.04em;
 	color: var(--glass-ink);
+}
+
+.u-measure {
+	max-width: var(--measure);
 }
 
 .u-hairline {
