@@ -49,7 +49,7 @@ const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpe
 		</picture>
 	</div>
 
-	<GlassGrid class="hero__glass" />
+	<GlassGrid />
 
 	<div class="hero__content u-page">
 		<OpenStatus hours={hours} status={status} ui={ui} locale={locale} />
@@ -128,11 +128,11 @@ const heroFallback = await getImage({ src: heroImage, ...heroSizes, format: 'jpe
 		object-fit: cover;
 	}
 
-	.hero__glass {
-		z-index: -1;
-	}
-
 	.hero__content {
+		/* Above the grid. The grid is absolutely positioned, so without this the
+		   glass paints over the headline. */
+		position: relative;
+		z-index: 1;
 		display: grid;
 		gap: clamp(0.75rem, 2vw, 1.1rem);
 	}
