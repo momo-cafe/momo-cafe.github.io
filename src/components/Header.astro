@@ -1,70 +1,108 @@
 ---
 /**
- * Sticky header. Blurs the glass grid behind it, per the wireframe in section 7.
- * The language toggle reads `nl | en`, sits top right, and points at the same
- * page in the other locale.
+ * The masthead. Centred wordmark, with the address in the left rail and the
+ * language toggle in the right one — the only two things the rails ever hold.
+ *
+ * Not sticky, on purpose: it scrolls away and does not come back. That is the
+ * single biggest structural difference from a conventional site header, and it
+ * is what makes the page read as a printed front page rather than an app.
  */
 import Wordmark from './Wordmark.astro';
 import { t, LOCALES, localePath } from '../lib/t.js';
+import { fullAddress, mapLinks } from '../lib/content.js';
 
 interface Props {
+	site: Record<string, any>;
 	locale: string;
-	ui: Record<string, any>;
 	/** '' for the home page, or a slug like 'privacy'. */
 	page?: string;
 	/** Inner pages wrap the wordmark in a link home. */
 	linkHome?: boolean;
 }
 
-const { locale, ui, page = '', linkHome = false } = Astro.props;
+const { site, locale, page = '', linkHome = false } = Astro.props;
+const { business, ui } = site;
+const maps = mapLinks(business);
 ---
 
-<header class="header">
-	<div class="header__inner u-page">
-		<Wordmark width="104px" href={linkHome ? localePath(locale) : undefined} />
+<header class="masthead u-shell">
+	<p class="masthead__card">
+		<a href={maps.google} rel="noreferrer">
+			<span class="masthead__street">{business.street}</span>
+			<span>{business.postcode} {business.city}</span>
+		</a>
+	</p>
 
-		<nav class="lang" aria-label={t(ui.languageLabel, locale)}>
-			<span class="lang__ring">
-				<span class="lang__inner">
-					{
-						LOCALES.map((code, index) => (
-							<Fragment>
-								{index > 0 && <span class="lang__sep" aria-hidden="true">|</span>}
-								<a
-									class="lang__link"
-									href={localePath(code, page)}
-									hreflang={code}
-									lang={code}
-									data-lang-link
-									aria-current={code === locale ? 'true' : undefined}
-								>
-									{code}
-								</a>
-							</Fragment>
-						))
-					}
-				</span>
-			</span>
-		</nav>
+	<div class="u-centre masthead__brand">
+		<Wordmark width="var(--wordmark-w)" href={linkHome ? localePath(locale) : undefined} />
 	</div>
+
+	<nav class="lang" aria-label={t(ui.languageLabel, locale)}>
+		<span class="lang__ring">
+			<span class="lang__inner">
+				{
+					LOCALES.map((code, index) => (
+						<Fragment>
+							{index > 0 && (
+								<span class="lang__sep" aria-hidden="true">
+									|
+								</span>
+							)}
+							<a
+								class="lang__link"
+								href={localePath(code, page)}
+								hreflang={code}
+								lang={code}
+								data-lang-link
+								aria-current={code === locale ? 'true' : undefined}
+							>
+								{code}
+							</a>
+						</Fragment>
+					))
+				}
+			</span>
+		</span>
+	</nav>
 </header>
 
 <style>
-	.header {
-		position: sticky;
-		top: 0;
-		z-index: 20;
-		background: rgba(239, 237, 232, 0.74);
-		-webkit-backdrop-filter: blur(14px) saturate(140%);
-		backdrop-filter: blur(14px) saturate(140%);
+	.masthead {
+		--wordmark-w: calc(300 * var(--u));
+		padding-inline: var(--gutter);
+		padding-top: var(--band);
 	}
 
-	.header__inner {
+	/* The one inverted element on the page. */
+	.masthead__card {
+		margin: 0;
+		padding-block: calc(28 * var(--u));
+		background: var(--ink);
+		color: var(--paper);
+		text-align: center;
+		font-size: var(--utility);
+		letter-spacing: 0.04em;
+		line-height: 1.45;
+	}
+
+	.masthead__card a {
+		display: grid;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.masthead__card a:hover .masthead__street {
+		text-decoration: underline;
+	}
+
+	.masthead__brand {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding-block: 0.75rem;
+		justify-content: center;
+		padding-top: calc(10 * var(--u));
+	}
+
+	.lang {
+		justify-self: end;
 	}
 
 	/* Metal is a gradient, never a flat fill: it rings the toggle. */
@@ -79,7 +117,7 @@ const { locale, ui, page = '', linkHome = false } = Astro.props;
 		display: flex;
 		align-items: center;
 		gap: 0.45rem;
-		padding: 0.28rem 0.7rem;
+		padding: calc(8 * var(--u)) calc(18 * var(--u));
 		border-radius: 999px;
 		background: var(--paper);
 		font-size: var(--utility);
@@ -102,7 +140,7 @@ const { locale, ui, page = '', linkHome = false } = Astro.props;
 	/* Section 6, moment one: the wordmark scales from 0.97 to 1 as the glass
 	   grid pulls into focus. Runs once, on load. */
 	@media (prefers-reduced-motion: no-preference) {
-		.header__inner :global(.wordmark) {
+		.masthead__brand :global(.wordmark) {
 			animation: momo-wordmark 900ms var(--ease) both;
 		}
 
@@ -121,6 +159,33 @@ const { locale, ui, page = '', linkHome = false } = Astro.props;
 
 		.lang__ring:hover {
 			background-image: var(--metal-hover);
+		}
+	}
+
+	@media (max-width: 63.9375rem) {
+		.masthead {
+			--wordmark-w: calc(240 * var(--u));
+			display: grid;
+			grid-template-columns: 1fr auto;
+			align-items: center;
+			gap: var(--band);
+		}
+
+		/* The address moves out of the rail and under the brand row. */
+		.masthead__card {
+			order: 3;
+			grid-column: 1 / -1;
+			padding-block: calc(20 * var(--u));
+		}
+
+		.masthead__brand {
+			order: 1;
+			justify-content: start;
+			padding-top: 0;
+		}
+
+		.lang {
+			order: 2;
 		}
 	}
 </style>

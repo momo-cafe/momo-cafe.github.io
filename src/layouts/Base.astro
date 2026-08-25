@@ -93,7 +93,7 @@ const canonical = new URL(localePath(locale, page), Astro.site).href;
 	<body>
 		<a class="skip" href="#main">{t(ui.skip, locale)}</a>
 		<Announcement announcement={site.announcement} locale={locale} />
-		<Header locale={locale} ui={ui} page={page} linkHome={page !== ''} />
+		<Header site={site} locale={locale} page={page} linkHome={page !== ''} />
 
 		<main id="main">
 			<slot />
