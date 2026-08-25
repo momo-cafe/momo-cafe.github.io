@@ -2,8 +2,9 @@
 /*
  * Seed the Sanity dataset from the JSON that is already in the repo.
  *
- * This is the exact inverse of the normalisation in src/lib/sanity.js: it turns
- * src/content/site.json and src/content/menu.json into the two singleton
+ * This is the exact inverse of the normalisation in web/src/lib/sanity.js: it
+ * turns web/src/content/site.json and web/src/content/menu.json into the two
+ * singleton
  * documents the studio schema describes, and writes them with createOrReplace
  * under fixed ids, so running it twice is the same as running it once.
  *
@@ -25,14 +26,16 @@ const PROJECT_ID = 'drw50awd';
 const DATASET = 'production';
 const API_VERSION = '2026-08-01';
 
-/** Same ids the website loader queries by, in src/lib/sanity.js. */
+/** Same ids the website loader queries by, in web/src/lib/sanity.js. */
 const SITE_DOC_ID = 'siteSettings';
 const MENU_DOC_ID = 'menu';
 
 const DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..');
+/* The Astro app is one of two siblings in this monorepo; the content JSON it
+ * falls back to is the seed source. */
+const web = path.resolve(here, '..', 'web');
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run') || args.includes('-n');
@@ -236,8 +239,8 @@ function menuDocument(menu) {
 
 async function main() {
 	const [site, menu] = await Promise.all([
-		readFile(path.join(root, 'src/content/site.json'), 'utf8').then(JSON.parse),
-		readFile(path.join(root, 'src/content/menu.json'), 'utf8').then(JSON.parse),
+		readFile(path.join(web, 'src/content/site.json'), 'utf8').then(JSON.parse),
+		readFile(path.join(web, 'src/content/menu.json'), 'utf8').then(JSON.parse),
 	]);
 
 	const documents = [siteDocument(site), menuDocument(menu)];

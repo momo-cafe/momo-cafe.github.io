@@ -1,22 +1,19 @@
 {
   "name": "momo-cafe",
-  "type": "module",
+  "private": true,
   "version": "0.0.1",
+  "type": "module",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/sitemap": "^3.7.3",
-    "@sanity/client": "^8.2.0",
-    "astro": "^7.2.6"
-  },
-  "allowScripts": {
-    "esbuild": true
+    "dev": "npm --prefix web run dev",
+    "build": "npm --prefix web run build",
+    "preview": "npm --prefix web run preview",
+    "studio": "npm --prefix studio run dev",
+    "studio:build": "npm --prefix studio run build",
+    "studio:deploy": "npm --prefix studio run deploy",
+    "seed": "node scripts/seed-sanity.mjs",
+    "setup": "npm --prefix web install && npm --prefix studio install"
   }
 }

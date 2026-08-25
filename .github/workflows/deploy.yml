@@ -25,12 +25,15 @@ jobs:
         uses: withastro/action@v3
         env:
           # Pre-launch only. The footer refuses to build while the KVK number
-          # and btw-id in src/content/site.json are still PLACEHOLDER; both are
-          # legally required on a Dutch commercial site. Delete these two lines
-          # the day the real numbers land, and the guard starts protecting the
-          # live site instead of being waved through.
+          # and btw-id in web/src/content/site.json are still PLACEHOLDER;
+          # both are legally required on a Dutch commercial site. Delete these
+          # two lines the day the real numbers land, and the guard starts
+          # protecting the live site instead of being waved through.
           MOMO_ALLOW_PLACEHOLDERS: '1'
         with:
+          # The Astro app is one of two siblings in this monorepo; the studio is
+          # deployed separately with `npm run studio:deploy`.
+          path: ./web
           # Astro 7 requires Node >=22.12; the action defaults to Node 20.
           node-version: 22
 
