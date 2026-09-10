@@ -46,14 +46,6 @@ export const gallery = [
   { src: '/img/storefront-sign.webp', alt: 'De gevel met het Momo uithangbord', caption: 'de gevel' },
 ]
 
-export const videos = [
-  { src: '/video/iced-drink-stir.mp4', caption: 'een koud drankje' },
-  { src: '/video/pistachio-cookie-video.mp4', caption: 'pistache cookie' },
-  { src: '/video/storefront-reflection.mp4', caption: 'de gevel' },
-  { src: '/video/window-decal-walkby.mp4', caption: 'aan het raam' },
-  { src: '/video/welcome-card.mp4', caption: 'welkom bij momo' },
-]
-
 export type MenuItem = { name: string; price: string; note?: string }
 export type MenuSection = {
   id: string

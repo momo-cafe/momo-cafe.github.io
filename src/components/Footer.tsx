@@ -1,11 +1,9 @@
-import mascot from '@/assets/brand/momo-mascot.svg?raw'
 import { business, footer } from '@/data/site'
 
 export default function Footer() {
   return (
     <footer class="px-6 py-10 border-t border-neutral-200 text-sm text-neutral-500">
       <div class="max-w-2xl mx-auto flex flex-wrap items-center justify-between gap-4">
-        <div class="w-10 text-neutral-400" innerHTML={mascot} />
         <span>
           {business.name} &middot; KVK {business.kvk}
         </span>
