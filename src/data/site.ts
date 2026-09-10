@@ -36,9 +36,22 @@ export const practical = [
 ]
 
 export const gallery = [
-  { src: '/img/bar.jpg', alt: 'De glasblokken bar met het espressoapparaat', caption: 'de bar' },
-  { src: '/img/cake.jpg', alt: 'Drie bordjes cake met slagroom', caption: 'cake, drie keer' },
-  { src: '/img/raam.jpg', alt: 'Gasten in de zon voor het raam', caption: 'middagzon' },
+  { src: '/img/glass-block-bar.webp', alt: 'De glasblokken bar met gasten die bestellen', caption: 'de bar' },
+  { src: '/img/staff-serving.webp', alt: 'Personeel dat koffie serveert aan gasten', caption: 'bediening' },
+  { src: '/img/barista-oat-milk.webp', alt: 'Barista die havermelk toevoegt achter de bar', caption: 'achter de bar' },
+  { src: '/img/pistachio-cookie.webp', alt: 'Doormidden gebroken pistache cookie', caption: 'pistache cookie' },
+  { src: '/img/window-with-dog.webp', alt: 'Gast met hond aan het raam met de krant', caption: 'aan het raam' },
+  { src: '/img/bench-outside.webp', alt: 'Gast op de bank buiten met een koud drankje', caption: 'buiten op de bank' },
+  { src: '/img/guests-smiling.webp', alt: 'Twee gasten lachend in de zaak', caption: 'gasten' },
+  { src: '/img/storefront-sign.webp', alt: 'De gevel met het Momo uithangbord', caption: 'de gevel' },
+]
+
+export const videos = [
+  { src: '/video/iced-drink-stir.mp4', caption: 'een koud drankje' },
+  { src: '/video/pistachio-cookie-video.mp4', caption: 'pistache cookie' },
+  { src: '/video/storefront-reflection.mp4', caption: 'de gevel' },
+  { src: '/video/window-decal-walkby.mp4', caption: 'aan het raam' },
+  { src: '/video/welcome-card.mp4', caption: 'welkom bij momo' },
 ]
 
 export type MenuItem = { name: string; price: string; note?: string }
